@@ -8,50 +8,13 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"sort"
 
 	"github.com/eidolon/wordwrap"
-	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var version = "0.0.1"
-
-type sortType struct {
-	name           string
-	description    string
-	supportsLocale bool
-	//	sortFunc    func(a, b string)
-}
-
-var availableSorts = []sortType{
-	{
-		"text",
-		"sort the file as text according to the specified locale",
-		true,
-	},
-	{
-		"numbered-text",
-		"sort the file assuming that each line starts with a numeric prefix, then fall back to sorting by text according to the specified locale",
-		true,
-	},
-	{
-		"datetime-text",
-		"sort the file assuming that each line starts with a date or datetime prefix, then fall back to sorting by text according to the specified locale",
-		true,
-	},
-	{
-		"path",
-		"sort the file assuming that each line is a path, sorted so that deeper paths come after shorter",
-		true,
-	},
-	{
-		"ip",
-		"sort the file assuming that each line is an IP address",
-		false,
-	},
-}
 
 type omegasort struct {
 	opts       *opts
@@ -101,13 +64,13 @@ func new() (*omegasort, error) {
 	}
 	sortType := app.Flag("sort", "The type of sorting to use. See below for options.").Short('s').Required().
 		HintOptions(validSorts...).Enum(validSorts...)
-	locale := app.Flag("locale", "The locale to use for sorting. This defaults to C.").Short('l').Default("C").String()
-	caseInsensitive := app.Flag("case-insensitive", "Sort case-insensitively.").Short('c').Bool()
-	reverse := app.Flag("reverse", "Sort in reverse order.").Short('r').Bool()
-	inPlace := app.Flag("in-place", "Modify the file in place instead of making a backup.").Short('i').Bool()
-	toStdout := app.Flag("stdout", "Print the sorted output to stdout instead of making a new file.").Bool()
-	check := app.Flag("check", "Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.").Bool()
-	debug := app.Flag("debug", "Print out debugging info.").Bool()
+	locale := app.Flag("locale", "The locale to use for sorting. If this is not specified the sorting is in codepoint order.").Short('l').Default("").String()
+	caseInsensitive := app.Flag("case-insensitive", "Sort case-insensitively. Note that many Unicode locales always do this so if you specify a locale you may get case-insensitive output regardless of this flag.").Short('c').Default("false").Bool()
+	reverse := app.Flag("reverse", "Sort in reverse order.").Short('r').Default("false").Bool()
+	inPlace := app.Flag("in-place", "Modify the file in place instead of making a backup.").Short('i').Default("false").Bool()
+	toStdout := app.Flag("stdout", "Print the sorted output to stdout instead of making a new file.").Default("false").Bool()
+	check := app.Flag("check", "Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.").Default("false").Bool()
+	debug := app.Flag("debug", "Print out debugging info.").Default("false").Bool()
 	file := app.Arg("file", "The file to sort.").Required().ExistingFile()
 
 	appOpts := &opts{}
@@ -129,48 +92,13 @@ func new() (*omegasort, error) {
 		}
 	}
 
-	if locale == nil {
-		appOpts.locale = ""
-	} else {
-		appOpts.locale = *locale
-	}
-
-	if caseInsensitive == nil {
-		appOpts.caseInsensitive = false
-	} else {
-		appOpts.caseInsensitive = *caseInsensitive
-	}
-
-	if reverse == nil {
-		appOpts.reverse = false
-	} else {
-		appOpts.reverse = *reverse
-	}
-
-	if inPlace == nil {
-		appOpts.inPlace = false
-	} else {
-		appOpts.inPlace = *inPlace
-	}
-
-	if toStdout == nil {
-		appOpts.toStdout = false
-	} else {
-		appOpts.toStdout = *toStdout
-	}
-
-	if check == nil {
-		appOpts.check = false
-	} else {
-		appOpts.check = *check
-	}
-
-	if debug == nil {
-		appOpts.debug = false
-	} else {
-		appOpts.debug = *debug
-	}
-
+	appOpts.locale = *locale
+	appOpts.caseInsensitive = *caseInsensitive
+	appOpts.reverse = *reverse
+	appOpts.inPlace = *inPlace
+	appOpts.toStdout = *toStdout
+	appOpts.check = *check
+	appOpts.debug = *debug
 	appOpts.file = *file
 
 	if appOpts.debug {
@@ -221,7 +149,7 @@ func (o *omegasort) validateArgs() error {
 		return errors.New("you cannot set both --in-place and --check")
 	}
 
-	if o.opts.locale != "C" {
+	if o.opts.locale != "" {
 		tag, err := language.Parse(o.opts.locale)
 		if err != nil {
 			return fmt.Errorf("could not find a locale matching %s: %s", o.opts.locale, err)
@@ -235,27 +163,11 @@ func (o *omegasort) validateArgs() error {
 const firstChunk = 2048
 
 func (o *omegasort) run() error {
-	err := o.determineLineEnding()
+	lines, err := o.readLines()
+	err = o.sort.sortFunc(lines, o.locale, o.opts.caseInsensitive, o.opts.reverse)
 	if err != nil {
 		return err
 	}
-
-	file, err := os.Open(o.opts.file)
-	if err != nil {
-		return err
-	}
-	scanner := bufio.NewScanner(file)
-	scanner.Split(o.splitFunc())
-
-	lines := []string{}
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err = scanner.Err(); err != nil {
-		return err
-	}
-
-	o.sortLines(lines)
 
 	out, err := o.outputFile()
 	if err != nil {
@@ -281,6 +193,30 @@ func (o *omegasort) run() error {
 	}
 
 	return nil
+}
+
+func (o *omegasort) readLines() ([]string, error) {
+	err := o.determineLineEnding()
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := os.Open(o.opts.file)
+	if err != nil {
+		return nil, err
+	}
+	scanner := bufio.NewScanner(file)
+	scanner.Split(o.splitFunc())
+
+	lines := []string{}
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err = scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }
 
 var crlf = []byte{'\r', 'n'}
@@ -335,22 +271,6 @@ func (o *omegasort) splitFunc() bufio.SplitFunc {
 
 		return 0, nil, nil
 	}
-}
-
-func (o *omegasort) sortLines(lines []string) {
-	if o.locale == language.Und {
-		sort.Strings(lines)
-		return
-	}
-
-	opts := []collate.Option{collate.OptionsFromTag(o.locale)}
-	if o.opts.caseInsensitive {
-		opts = append(opts, collate.IgnoreCase)
-	}
-	coll := collate.New(o.locale, opts...)
-	coll.SortStrings(lines)
-
-	return
 }
 
 func (o *omegasort) outputFile() (*os.File, error) {
