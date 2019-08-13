@@ -1,0 +1,27 @@
+language: go
+
+env:
+  - GO111MODULE=on
+
+go:
+  - "1.x"
+  - master
+
+os:
+  - linux
+  - osx
+  - windows
+
+matrix:
+  exclude:
+    # Doesn't seem to work - see
+    # https://travis-ci.com/houseabsolute/omegasort/jobs/224739813
+    go: master
+    os: windows
+
+install:
+  - true
+
+script:
+  - go test -v ./...
+  - ./dev/bin/check-go-mod.sh
