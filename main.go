@@ -10,6 +10,8 @@ import (
 	"os"
 
 	"github.com/eidolon/wordwrap"
+	"github.com/houseabsolute/omegasort/internal/guesswidth"
+	"github.com/houseabsolute/omegasort/internal/sort"
 	"golang.org/x/text/language"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -19,7 +21,7 @@ var version = "0.0.1"
 type omegasort struct {
 	opts       *opts
 	app        *kingpin.Application
-	sort       sortType
+	sort       sort.Type
 	locale     language.Tag
 	lineEnding []byte
 }
@@ -29,6 +31,7 @@ type opts struct {
 	locale          string
 	caseInsensitive bool
 	reverse         bool
+	windows         bool
 	inPlace         bool
 	toStdout        bool
 	check           bool
@@ -59,14 +62,15 @@ func new() (*omegasort, error) {
 	app.HelpFlag.Short('h')
 
 	validSorts := []string{}
-	for _, as := range availableSorts {
-		validSorts = append(validSorts, as.name)
+	for _, as := range sort.AvailableSorts {
+		validSorts = append(validSorts, as.Name)
 	}
 	sortType := app.Flag("sort", "The type of sorting to use. See below for options.").Short('s').Required().
 		HintOptions(validSorts...).Enum(validSorts...)
 	locale := app.Flag("locale", "The locale to use for sorting. If this is not specified the sorting is in codepoint order.").Short('l').Default("").String()
 	caseInsensitive := app.Flag("case-insensitive", "Sort case-insensitively. Note that many Unicode locales always do this so if you specify a locale you may get case-insensitive output regardless of this flag.").Short('c').Default("false").Bool()
 	reverse := app.Flag("reverse", "Sort in reverse order.").Short('r').Default("false").Bool()
+	windows := app.Flag("windows", "Parse paths as Windows paths for path sort.").Default("false").Bool()
 	inPlace := app.Flag("in-place", "Modify the file in place instead of making a backup.").Short('i').Default("false").Bool()
 	toStdout := app.Flag("stdout", "Print the sorted output to stdout instead of making a new file.").Default("false").Bool()
 	check := app.Flag("check", "Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.").Default("false").Bool()
@@ -85,8 +89,8 @@ func new() (*omegasort, error) {
 	}
 
 	appOpts.sort = *sortType
-	for _, as := range availableSorts {
-		if as.name == appOpts.sort {
+	for _, as := range sort.AvailableSorts {
+		if as.Name == appOpts.sort {
 			o.sort = as
 			break
 		}
@@ -95,6 +99,7 @@ func new() (*omegasort, error) {
 	appOpts.locale = *locale
 	appOpts.caseInsensitive = *caseInsensitive
 	appOpts.reverse = *reverse
+	appOpts.windows = *windows
 	appOpts.inPlace = *inPlace
 	appOpts.toStdout = *toStdout
 	appOpts.check = *check
@@ -112,11 +117,11 @@ func new() (*omegasort, error) {
 func sortDocs() string {
 	docs := "Sorting Options:\n"
 
-	width := guessWidth(os.Stderr)
+	width := guesswidth.Guess(os.Stderr)
 	longest := 0
-	for _, as := range availableSorts {
-		if len(as.name) > longest {
-			longest = len(as.name)
+	for _, as := range sort.AvailableSorts {
+		if len(as.Name) > longest {
+			longest = len(as.Name)
 		}
 	}
 	width -= longest
@@ -124,17 +129,17 @@ func sortDocs() string {
 
 	wrapper := wordwrap.Wrapper(width, false)
 
-	for _, as := range availableSorts {
-		indented := wrapper(as.description)
-		docs += wordwrap.Indent(indented, fmt.Sprintf("  * %s - ", as.name), false) + "\n"
+	for _, as := range sort.AvailableSorts {
+		indented := wrapper(as.Description)
+		docs += wordwrap.Indent(indented, fmt.Sprintf("  * %s - ", as.Name), false) + "\n"
 	}
 
 	return docs
 }
 
 func (o *omegasort) validateArgs() error {
-	if o.opts.locale != "" && !o.sort.supportsLocale {
-		return fmt.Errorf("you cannot set a locale when sorting by %s", o.sort.name)
+	if o.opts.locale != "" && !o.sort.SupportsLocale {
+		return fmt.Errorf("you cannot set a locale when sorting by %s", o.sort.Name)
 	}
 
 	if o.opts.toStdout && o.opts.inPlace {
@@ -147,6 +152,10 @@ func (o *omegasort) validateArgs() error {
 
 	if o.opts.inPlace && o.opts.check {
 		return errors.New("you cannot set both --in-place and --check")
+	}
+
+	if o.opts.windows && !o.sort.SupportsPathType {
+		return fmt.Errorf("you cannot pass the --windows flag when sorting by %s", o.sort.Name)
 	}
 
 	if o.opts.locale != "" {
@@ -163,8 +172,17 @@ func (o *omegasort) validateArgs() error {
 const firstChunk = 2048
 
 func (o *omegasort) run() error {
+	p := sort.SortParams{
+		Locale:          o.locale,
+		CaseInsensitive: o.opts.caseInsensitive,
+		Reverse:         o.opts.reverse,
+	}
+	if o.opts.windows {
+		p.PathType = sort.WindowsPaths
+	}
+
 	lines, err := o.readLines()
-	err = o.sort.sortFunc(lines, o.locale, o.opts.caseInsensitive, o.opts.reverse)
+	err = o.sort.SortFunc(lines, p)
 	if err != nil {
 		return err
 	}
