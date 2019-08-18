@@ -8,8 +8,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/eidolon/wordwrap v0.0.0-20161011182207-e0f54129b8bb h1:ioQwBmKdOCpMVS/bDaESqNWXIE/aw4+gsVtysCGMWZ4=
 github.com/eidolon/wordwrap v0.0.0-20161011182207-e0f54129b8bb/go.mod h1:ZAPs+OyRzeVJFGvXVDVffgCzQfjg3qU9Ig8G/MU3zZ4=
-github.com/houseabsolute/detest v0.0.0-20190806062650-f2ae7aeaa466 h1:QRB8HFsC9XhgKjNleIsRDSP6C22iQnJ0NW0Gq64lLu8=
-github.com/houseabsolute/detest v0.0.0-20190806062650-f2ae7aeaa466/go.mod h1:rybBgBAW9w0NVzV3t6QveX+XGWkq6uMckNQulTIesbc=
+github.com/houseabsolute/detest v0.0.0-20190818095402-8e70761ef019 h1:1Mk8opjhGzLoXvN4x9Vh2iz3tOuKGm7QHsWLARMp+V8=
+github.com/houseabsolute/detest v0.0.0-20190818095402-8e70761ef019/go.mod h1:rQz8K4XkyU1bh0vdusIBxbE9UbyMqIZQQSj3kOQWWwQ=
 github.com/mattn/go-runewidth v0.0.3/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mattn/go-runewidth v0.0.4 h1:2BvfKmzob6Bmd4YsL0zygOqfdFnK7GR4QL06Do4/p7Y=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=

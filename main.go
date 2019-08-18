@@ -46,7 +46,10 @@ func main() {
 	}
 
 	if err = o.run(); err != nil {
-		os.Stderr.WriteString(fmt.Sprintf("error when sorting %s: %s\n", o.opts.file, err))
+		_, err = os.Stderr.WriteString(fmt.Sprintf("error when sorting %s: %s\n", o.opts.file, err))
+		if err != nil {
+			panic(err)
+		}
 		os.Exit(2)
 	}
 
@@ -65,17 +68,47 @@ func new() (*omegasort, error) {
 	for _, as := range sort.AvailableSorts {
 		validSorts = append(validSorts, as.Name)
 	}
-	sortType := app.Flag("sort", "The type of sorting to use. See below for options.").Short('s').Required().
-		HintOptions(validSorts...).Enum(validSorts...)
-	locale := app.Flag("locale", "The locale to use for sorting. If this is not specified the sorting is in codepoint order.").Short('l').Default("").String()
-	caseInsensitive := app.Flag("case-insensitive", "Sort case-insensitively. Note that many Unicode locales always do this so if you specify a locale you may get case-insensitive output regardless of this flag.").Short('c').Default("false").Bool()
-	reverse := app.Flag("reverse", "Sort in reverse order.").Short('r').Default("false").Bool()
-	windows := app.Flag("windows", "Parse paths as Windows paths for path sort.").Default("false").Bool()
-	inPlace := app.Flag("in-place", "Modify the file in place instead of making a backup.").Short('i').Default("false").Bool()
-	toStdout := app.Flag("stdout", "Print the sorted output to stdout instead of making a new file.").Default("false").Bool()
-	check := app.Flag("check", "Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.").Default("false").Bool()
-	debug := app.Flag("debug", "Print out debugging info.").Default("false").Bool()
-	file := app.Arg("file", "The file to sort.").Required().ExistingFile()
+	sortType := app.Flag(
+		"sort",
+		"The type of sorting to use. See below for options.",
+	).Short('s').Required().HintOptions(validSorts...).Enum(validSorts...)
+	locale := app.Flag(
+		"locale",
+		"The locale to use for sorting. If this is not specified the sorting is in codepoint order.",
+	).Short('l').Default("").String()
+	caseInsensitive := app.Flag(
+		"case-insensitive",
+		"Sort case-insensitively. Note that many Unicode locales always do this so if you specify"+
+			" a locale you may get case-insensitive output regardless of this flag.").
+		Short('c').Default("false").Bool()
+	reverse := app.Flag(
+		"reverse",
+		"Sort in reverse order.",
+	).Short('r').Default("false").Bool()
+	windows := app.Flag(
+		"windows",
+		"Parse paths as Windows paths for path sort.",
+	).Default("false").Bool()
+	inPlace := app.Flag(
+		"in-place",
+		"Modify the file in place instead of making a backup.",
+	).Short('i').Default("false").Bool()
+	toStdout := app.Flag(
+		"stdout",
+		"Print the sorted output to stdout instead of making a new file.",
+	).Default("false").Bool()
+	check := app.Flag(
+		"check",
+		"Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.",
+	).Default("false").Bool()
+	debug := app.Flag(
+		"debug",
+		"Print out debugging info.",
+	).Default("false").Bool()
+	file := app.Arg(
+		"file",
+		"The file to sort.",
+	).Required().ExistingFile()
 
 	appOpts := &opts{}
 	o := &omegasort{
@@ -182,6 +215,10 @@ func (o *omegasort) run() error {
 	}
 
 	lines, err := o.readLines()
+	if err != nil {
+		return err
+	}
+
 	err = o.sort.SortFunc(lines, p)
 	if err != nil {
 		return err
@@ -260,13 +297,14 @@ func (o *omegasort) determineLineEnding() error {
 		}
 	}
 
-	if bytes.Contains(buf, crlf) {
+	switch {
+	case bytes.Contains(buf, crlf):
 		o.lineEnding = crlf
-	} else if bytes.Contains(buf, cr) {
+	case bytes.Contains(buf, cr):
 		o.lineEnding = cr
-	} else if bytes.Contains(buf, nl) {
+	case bytes.Contains(buf, nl):
 		o.lineEnding = nl
-	} else {
+	default:
 		return fmt.Errorf("could not determine line ending from reading first %d bytes of %s", firstChunk, o.opts.file)
 	}
 

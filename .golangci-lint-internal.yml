@@ -1,0 +1,33 @@
+linters:
+  enable-all: true
+  disable:
+    - gochecknoglobals
+
+issues:
+  exclude:
+    # This is just like the main config except we also exclude the golint
+    # error about missing docs since we don't care about that for things under
+    # internal/
+    - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
+
+    # golint: False positive when tests are defined in package 'test'
+    - func name will be used as test\.Test.* by other packages, and that stutters; consider calling this
+                                    
+    # govet: Common false positives
+    - (possible misuse of unsafe.Pointer|should have signature)
+                                    
+    # gosec: Too many false-positives on 'unsafe' usage
+    - Use of unsafe calls should be audited
+                                    
+    # gosec: Too many false-positives for parametrized shell calls
+    - Subprocess launch(ed with variable|ing should be audited)
+                                    
+    # gosec: Duplicated errcheck checks
+    - G104
+                                    
+    # gosec: Too many issues in popular repos
+    - (Expect directory permissions to be 0750 or less|Expect file permissions to be 0600 or less)
+                                    
+    # gosec: False positive is triggered by 'src, err := ioutil.ReadFile(filename)'
+    - Potential file inclusion via variable
+  exclude-use-default: false

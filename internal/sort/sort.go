@@ -46,21 +46,24 @@ var AvailableSorts = []Type{
 	},
 	{
 		"numbered-text",
-		"sort the file assuming that each line starts with a numeric prefix, then fall back to sorting by text according to the specified locale",
+		"sort the file assuming that each line starts with a numeric prefix," +
+			" then fall back to sorting by text according to the specified locale",
 		true,
 		false,
 		numberedTextSort,
 	},
 	{
 		"datetime-text",
-		"sort the file assuming that each line starts with a date or datetime prefix, then fall back to sorting by text according to the specified locale",
+		"sort the file assuming that each line starts with a date or datetime prefix," +
+			" then fall back to sorting by text according to the specified locale",
 		true,
 		false,
 		datetimeTextSort,
 	},
 	{
 		"path",
-		"sort the file assuming that each line is a path, sorted so that deeper paths come after shorter",
+		"sort the file assuming that each line is a path," +
+			" sorted so that deeper paths come after shorter",
 		true,
 		true,
 		pathSort,
@@ -95,15 +98,16 @@ func numberedTextSort(lines []string, p SortParams) error {
 			matchI := numberedTextRE.FindStringSubmatch(lines[i])
 			matchJ := numberedTextRE.FindStringSubmatch(lines[j])
 			var less *bool
-			if matchI[1] != "" && matchJ[1] != "" {
-				numI, err := strconv.ParseInt(matchI[1], 10, 64)
-				numJ, err := strconv.ParseInt(matchJ[1], 10, 64)
-				if err == nil && numI != numJ {
+			switch {
+			case matchI[1] != "" && matchJ[1] != "":
+				numI, errI := strconv.ParseInt(matchI[1], 10, 64)
+				numJ, errJ := strconv.ParseInt(matchJ[1], 10, 64)
+				if errI == nil && errJ == nil && numI != numJ {
 					less = boolPointer(numI < numJ)
 				}
-			} else if matchI[1] != "" {
+			case matchI[1] != "":
 				less = boolPointer(true)
-			} else if matchJ[1] != "" {
+			case matchJ[1] != "":
 				less = boolPointer(false)
 			}
 			if less != nil {
@@ -211,12 +215,12 @@ func stringComparer(locale language.Tag, caseInsensitive, reverse bool) func(i, 
 			return func(i, j string) bool {
 				return caser.String(i) < caser.String(j)
 			}
-		} else {
-			if reverse {
-				return func(i, j string) bool { return i > j }
-			}
-			return func(i, j string) bool { return i < j }
 		}
+
+		if reverse {
+			return func(i, j string) bool { return i > j }
+		}
+		return func(i, j string) bool { return i < j }
 	}
 
 	opts := []collate.Option{}

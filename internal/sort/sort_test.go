@@ -131,6 +131,7 @@ var textSortTests = []testCase{
 func Test_textSort(t *testing.T) {
 	for _, test := range textSortTests {
 		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
 			testOneCase(t, test, textSort)
 		})
 	}
@@ -252,6 +253,7 @@ var numberedTextSortTests = []testCase{
 func Test_numberedTextSort(t *testing.T) {
 	for _, test := range append(textSortTests, numberedTextSortTests...) {
 		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
 			testOneCase(t, test, numberedTextSort)
 		})
 	}
@@ -329,6 +331,7 @@ var pathSortTests = []testCase{
 func Test_pathSort(t *testing.T) {
 	for _, test := range pathSortTests {
 		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
 			testOneCase(t, test, pathSort)
 		})
 	}
@@ -339,8 +342,10 @@ func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
 	// If the test fails and we haven't cloned then we cannot print
 	// out debugging info with the original and the (improperly
 	// sorted) list.
-	clone := cloneSlice(test.input)
-	sorter(clone, test.params)
+	clone := make([]string, len(test.input))
+	copy(clone, test.input)
+	err := sorter(clone, test.params)
+	d.Is(err, nil, "no error from calling sorting func")
 	d.Is(
 		clone,
 		d.Slice(func(st *detest.SliceTester) {
@@ -351,12 +356,4 @@ func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
 		}),
 		"check sorted output",
 	)
-}
-
-func cloneSlice(orig []string) []string {
-	new := make([]string, len(orig))
-	for i, o := range orig {
-		new[i] = o
-	}
-	return new
 }
