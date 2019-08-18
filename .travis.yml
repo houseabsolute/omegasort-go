@@ -20,9 +20,9 @@ matrix:
     os: windows
 
 install:
-  - true
+  - if [ "$TRAVIS_GO_VERSION" == "1.x" && "$TRAVIS_OS_NAME" == "linux" ]; then ./dev/bin/install-dev-tools.sh; fi
 
 script:
   - go test -v ./...
-- if [ "$TRAVIS_GO_VERSION" == "1.x"  && "$TRAVIS_OS_NAME" == "linux" ]; then ./dev/bin/check-go-mod.sh; fi
-
+  - if [ "$TRAVIS_GO_VERSION" == "1.x" && "$TRAVIS_OS_NAME" == "linux" ]; then ./dev/bin/run-golangci-lint.sh; fi
+  - if [ "$TRAVIS_GO_VERSION" == "1.x" && "$TRAVIS_OS_NAME" == "linux" ]; then ./dev/bin/check-go-mod.sh; fi
