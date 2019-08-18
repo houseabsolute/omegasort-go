@@ -24,4 +24,5 @@ install:
 
 script:
   - go test -v ./...
-  - ./dev/bin/check-go-mod.sh
+- if [ "$TRAVIS_GO_VERSION" == "1.x"  && "$TRAVIS_OS_NAME" == "linux" ]; then ./dev/bin/check-go-mod.sh; fi
+
