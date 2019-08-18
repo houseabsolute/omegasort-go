@@ -2,9 +2,10 @@
 
 set -e
 
-ERR=$( go mod tidy -v 2>&1 )
-if [[ "$ERR" =~ "unused" ]]; then
-    echo $ERR
+go mod tidy
+STATUS=$( git status --porcelain go.mod go.sum )
+if [ ! -z "$STATUS" ]; then
+    echo "Running go mod tidy modified go.mod and/or go.sum"
     exit 1
 fi
 
