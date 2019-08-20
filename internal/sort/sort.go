@@ -83,7 +83,7 @@ func textSort(lines []string, p SortParams) error {
 	return nil
 }
 
-var numberedTextRE = regexp.MustCompile(`\A([0-9]+)?(.+)\z`)
+var numberedTextRE = regexp.MustCompile(`\A([0-9]+(?:\.[0-9]+)?)?(.+)\z`)
 
 func numberedTextSort(lines []string, p SortParams) error {
 	comparer := stringComparer(p.Locale, p.CaseInsensitive, p.Reverse)
@@ -100,8 +100,8 @@ func numberedTextSort(lines []string, p SortParams) error {
 			var less *bool
 			switch {
 			case matchI[1] != "" && matchJ[1] != "":
-				numI, errI := strconv.ParseInt(matchI[1], 10, 64)
-				numJ, errJ := strconv.ParseInt(matchJ[1], 10, 64)
+				numI, errI := strconv.ParseFloat(matchI[1], 64)
+				numJ, errJ := strconv.ParseFloat(matchJ[1], 64)
 				if errI == nil && errJ == nil && numI != numJ {
 					less = boolPointer(numI < numJ)
 				}

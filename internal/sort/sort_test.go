@@ -248,6 +248,28 @@ var numberedTextSortTests = []testCase{
 			UnixPaths,
 		},
 	},
+	{
+		"numbers are decimals",
+		[]string{"10.1 - x", "27.2314 - bar", "1.00 - hello"},
+		[]string{"1.00 - hello", "10.1 - x", "27.2314 - bar"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"numbers are decimals, reversed",
+		[]string{"10.1 - x", "27.2314 - bar", "1.00 - hello"},
+		[]string{"27.2314 - bar", "10.1 - x", "1.00 - hello"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
 }
 
 func Test_numberedTextSort(t *testing.T) {
