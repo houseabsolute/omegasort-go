@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/eidolon/wordwrap"
 	"github.com/houseabsolute/omegasort/internal/guesswidth"
@@ -68,10 +69,12 @@ func new() (*omegasort, error) {
 	for _, as := range sort.AvailableSorts {
 		validSorts = append(validSorts, as.Name)
 	}
+	// We cannot set .Required for this flag (or any others) because we want
+	// the --docs flag to work without any other flags needed.
 	sortType := app.Flag(
 		"sort",
 		"The type of sorting to use. See below for options.",
-	).Short('s').Required().HintOptions(validSorts...).Enum(validSorts...)
+	).Short('s').HintOptions(validSorts...).Enum(validSorts...)
 	locale := app.Flag(
 		"locale",
 		"The locale to use for sorting. If this is not specified the sorting is in codepoint order.",
@@ -103,12 +106,16 @@ func new() (*omegasort, error) {
 	).Default("false").Bool()
 	debug := app.Flag(
 		"debug",
-		"Print out debugging info.",
+		"Print out debugging info while running.",
+	).Default("false").Bool()
+	docs := app.Flag(
+		"docs",
+		"Print out extended sorting documentation.",
 	).Default("false").Bool()
 	file := app.Arg(
 		"file",
 		"The file to sort.",
-	).Required().ExistingFile()
+	).ExistingFile()
 
 	appOpts := &opts{}
 	o := &omegasort{
@@ -119,6 +126,11 @@ func new() (*omegasort, error) {
 	_, err := app.Parse(os.Args[1:])
 	if err != nil {
 		return o, err
+	}
+
+	if docs != nil && *docs {
+		printExtendedDocs()
+		os.Exit(0)
 	}
 
 	appOpts.sort = *sortType
@@ -171,6 +183,14 @@ func sortDocs() string {
 }
 
 func (o *omegasort) validateArgs() error {
+	if o.opts.sort == "" {
+		return errors.New("you must set a --sort method")
+	}
+
+	if o.opts.file == "" {
+		return errors.New("you must pass a file to sort as the final argument")
+	}
+
 	if o.opts.locale != "" && !o.sort.SupportsLocale {
 		return fmt.Errorf("you cannot set a locale when sorting by %s", o.sort.Name)
 	}
@@ -200,6 +220,76 @@ func (o *omegasort) validateArgs() error {
 	}
 
 	return nil
+}
+
+//nolint: lll
+var extendedSortDocs = `There are a number of different sorting methods available.
+
+## Text
+
+This sorts each line of the file as text without any special parsing. The exact sorting is determined by the --locale, --case-insensitive, and --reverse flags. See below for details on how locales work.
+
+## Numbered Text
+
+This assumes that each line of the file starts with a numeric value, optionally followed by non-numeric text.
+
+Lines should not have any leading space before the number. The number can either be an integer (including 0) or a simple float (no scientific notation).
+
+The lines will be sorted numerically first. If two lines have the same number they will be sorted by text as above.
+
+This sorting method accepts the --locale, --case-insensitive, and --reverse flags.
+
+## Path Sort
+
+Each line is treated as a path.
+
+The paths are sorted by the following rules:
+
+* Absolute paths come before relative.
+* Paths are sorted by depth before sorting by the path content, so /z comes before /a/a.
+* If you pass the --windows path, then paths with drive letters are sorted based on the drive letter first. Paths with drive letters sort before paths without them.
+
+This sorting method accepts the --locale, --case-insensitive, and --reverse flags in addition to the --windows flag.
+
+## Datetime Sort
+
+This sorting method assumes that each line starts with a date or datetime.
+
+Lines should not have any leading space before the datetime.
+
+This sorting method accepts the --locale, --case-insensitive, and --reverse flags in addition to the ??? flag.
+
+## IP Sort
+
+This method assumes that each line is an IPv4 or IPv6 address (not a network).
+
+The sorting method is the same as if each line were the corresponding integer for the address.
+
+This sorting method accepts the --case-insensitive and --reverse flags.
+
+## Network Sort
+
+This method assumes that each line is an IPv4 or IPv6 network in CIDR notation.
+
+If there are two networks with the same base address are sorted with the larger network first (so 1.1.1.0/24 comes before 1.1.1.0/28).
+
+This sorting method accepts the --case-insensitive and --reverse flags.
+
+`
+
+func printExtendedDocs() {
+	width := guesswidth.Guess(os.Stdout)
+	wrapper := wordwrap.Wrapper(width, false)
+
+	lines := strings.Split(extendedSortDocs, "\n")
+
+	for _, l := range lines {
+		var err error
+		_, err = os.Stdout.WriteString(wrapper(l) + "\n")
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 const firstChunk = 2048

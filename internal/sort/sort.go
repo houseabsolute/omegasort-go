@@ -75,6 +75,13 @@ var AvailableSorts = []Type{
 		false,
 		ipSort,
 	},
+	{
+		"network",
+		"sort the file assuming that each line is a network",
+		false,
+		false,
+		networkSort,
+	},
 }
 
 func textSort(lines []string, p SortParams) error {
