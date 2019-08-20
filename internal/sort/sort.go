@@ -131,10 +131,6 @@ func numberedTextSort(lines []string, p SortParams) error {
 	return err
 }
 
-func boolPointer(val bool) *bool {
-	return &val
-}
-
 func datetimeTextSort(lines []string, p SortParams) error {
 	return nil
 }
@@ -166,6 +162,25 @@ func pathSort(lines []string, p SortParams) error {
 
 			elemI := splitPath(lines[i], p.PathType)
 			elemJ := splitPath(lines[j], p.PathType)
+
+			if p.PathType == WindowsPaths {
+				iIs := isDriveLetter(elemI[0])
+				jIs := isDriveLetter(elemJ[0])
+				switch {
+				case iIs && !jIs:
+					less = boolPointer(true)
+				case !iIs && jIs:
+					less = boolPointer(false)
+				case iIs && jIs && elemI[0] != elemJ[0]:
+					less = boolPointer(elemI[0] < elemJ[0])
+				}
+			}
+			if less != nil {
+				if p.Reverse {
+					return !*less
+				}
+				return *less
+			}
 
 			if len(elemI) != len(elemJ) {
 				less = boolPointer(len(elemI) < len(elemJ))
@@ -206,8 +221,22 @@ func isAbs(path string, typ pathType) bool {
 	return posixpath.IsAbs(path)
 }
 
+var driveLetterRE = regexp.MustCompile(`^[A-Z]:\\`)
+
+func isDriveLetter(elem string) bool {
+	return driveLetterRE.MatchString(elem)
+}
+
 func ipSort(lines []string, p SortParams) error {
 	return nil
+}
+
+func networkSort(lines []string, p SortParams) error {
+	return nil
+}
+
+func boolPointer(val bool) *bool {
+	return &val
 }
 
 func stringComparer(locale language.Tag, caseInsensitive, reverse bool) func(i, j string) bool {

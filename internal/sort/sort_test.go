@@ -348,6 +348,50 @@ var pathSortTests = []testCase{
 			UnixPaths,
 		},
 	},
+	{
+		"windows paths",
+		[]string{`C:\foo`, `\a\b`, `\b`, `C:\bar`, `E:\a`, `B:\x`, `C:\a\b\c`, `C:\a\b`},
+		[]string{`B:\x`, `C:\bar`, `C:\foo`, `C:\a\b`, `C:\a\b\c`, `E:\a`, `\b`, `\a\b`},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			WindowsPaths,
+		},
+	},
+	{
+		"windows paths, reversed",
+		[]string{`C:\foo`, `\a\b`, `\b`, `C:\bar`, `E:\a`, `B:\x`, `C:\a\b\c`, `C:\a\b`},
+		[]string{`\a\b`, `\b`, `E:\a`, `C:\a\b\c`, `C:\a\b`, `C:\foo`, `C:\bar`, `B:\x`},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			WindowsPaths,
+		},
+	},
+	{
+		"path German text",
+		[]string{"/foo", "/bar", "baz/quux", "/zoo", "/öoo", "a/q", "C:\\", "/X", "/A"},
+		[]string{"/A", "/bar", "/foo", "/öoo", "/X", "/zoo", "C:\\", "a/q", "baz/quux"},
+		SortParams{
+			language.German,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"path German text, reversed",
+		[]string{"/foo", "/bar", "baz/quux", "/zoo", "/öoo", "a/q", "C:\\", "/X", "/A"},
+		[]string{"baz/quux", "a/q", "C:\\", "/zoo", "/X", "/öoo", "/foo", "/bar", "/A"},
+		SortParams{
+			language.German,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
 }
 
 func Test_pathSort(t *testing.T) {
