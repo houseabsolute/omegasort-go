@@ -10,6 +10,7 @@ import (
 
 	"github.com/houseabsolute/omegasort/internal/posixpath"
 	"github.com/houseabsolute/omegasort/internal/winpath"
+	"github.com/projectcalico/felix/ip"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
@@ -270,8 +271,55 @@ func ipSort(lines []string, p SortParams) error {
 	return err
 }
 
+//
 func networkSort(lines []string, p SortParams) error {
-	return nil
+	var err error
+	sort.Slice(
+		lines,
+		func(i, j int) bool {
+			if err != nil {
+				return false
+			}
+
+			var cidrI ip.CIDR
+			cidrI, err = ip.CIDRFromString(lines[i])
+			if err != nil {
+				return false
+			}
+
+			var cidrJ ip.CIDR
+			cidrJ, err = ip.CIDRFromString(lines[j])
+			if err != nil {
+				return false
+			}
+
+			addrI := cidrI.Addr().AsNetIP()
+			addrJ := cidrJ.Addr().AsNetIP()
+
+			var less *bool
+			if len(addrI) != len(addrJ) {
+				less = boolPointer(len(addrI) < len(addrJ))
+			}
+
+			if less == nil {
+				comp := bytes.Compare(addrI, addrJ)
+				if comp != 0 {
+					less = boolPointer(comp < 0)
+				}
+			}
+
+			if less == nil {
+				less = boolPointer(cidrI.Prefix() < cidrJ.Prefix())
+			}
+
+			if p.Reverse {
+				return !*less
+			}
+			return *less
+		},
+	)
+
+	return err
 }
 
 func boolPointer(val bool) *bool {

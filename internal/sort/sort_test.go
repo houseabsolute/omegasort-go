@@ -495,6 +495,114 @@ func Test_ipSort(t *testing.T) {
 	)
 }
 
+var networkSortTests = []testCase{
+	{
+		"network, just IPv4",
+		[]string{"1.1.1.1/32", "0.1.255.0/24", "123.100.125.0/25", "1.255.0.0/17", "1.255.0.0/16"},
+		[]string{"0.1.255.0/24", "1.1.1.1/32", "1.255.0.0/16", "1.255.0.0/17", "123.100.125.0/25"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"network, just IPv4, reversed",
+		[]string{"1.1.1.1/32", "0.1.255.0/24", "123.100.125.0/25", "1.255.0.0/17", "1.255.0.0/16"},
+		[]string{"123.100.125.0/25", "1.255.0.0/17", "1.255.0.0/16", "1.1.1.1/32", "0.1.255.0/24"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"network, just IPv6",
+		[]string{"::1/128", "::0/127", "::0/42", "9876::fe01:1234:0/24", "1234::/90"},
+		[]string{"::0/42", "::0/127", "::1/128", "1234::/90", "9876::fe01:1234:0/24"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"network, just IPv6, reversed",
+		[]string{"::1/128", "::0/127", "::0/42", "9876::fe01:1234:0/24", "1234::/90"},
+		[]string{"9876::fe01:1234:0/24", "1234::/90", "::1/128", "::0/127", "::0/42"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"network, mixed",
+		[]string{
+			"::1/128", "::0/127", "1.2.3.0/18", "::0/42", "1.2.3.0/16", "9876::fe01:1234:0/24", "255.255.255.0/25", "1234::/90",
+		},
+		[]string{
+			"1.2.3.0/16", "1.2.3.0/18", "255.255.255.0/25", "::0/42", "::0/127", "::1/128", "1234::/90", "9876::fe01:1234:0/24",
+		},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"network, mixed, reversed",
+		[]string{
+			"::1/128", "::0/127", "1.2.3.0/18", "::0/42", "1.2.3.0/16", "9876::fe01:1234:0/24", "255.255.255.0/25", "1234::/90",
+		},
+		[]string{
+			"9876::fe01:1234:0/24", "1234::/90", "::1/128", "::0/127", "::0/42", "255.255.255.0/25", "1.2.3.0/18", "1.2.3.0/16",
+		},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+}
+
+func Test_networkSort(t *testing.T) {
+	for _, test := range networkSortTests {
+		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
+			testOneCase(t, test, networkSort)
+		})
+	}
+
+	d := detest.New(t)
+
+	params := SortParams{
+		language.Und,
+		false,
+		false,
+		UnixPaths,
+	}
+	err := networkSort([]string{"1.2.3.4/32", "not a network", "4.3.2.0/24"}, params)
+	d.Is(
+		err.Error(),
+		"invalid CIDR address: not a network",
+		"got expected error when line contains a non-network",
+	)
+
+	err = networkSort([]string{"1.2.3.4/32", "1.1.1.1/-1", "4.3.2.0/24"}, params)
+	d.Is(
+		err.Error(),
+		"invalid CIDR address: 1.1.1.1/-1",
+		"got expected error when line contains a non-network",
+	)
+}
+
 func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
 	d := detest.New(t)
 	// If the test fails and we haven't cloned then we cannot print
