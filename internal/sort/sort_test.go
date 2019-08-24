@@ -403,6 +403,98 @@ func Test_pathSort(t *testing.T) {
 	}
 }
 
+var ipSortTests = []testCase{
+	{
+		"ip, just IPv4",
+		[]string{"1.1.1.1", "0.1.255.255", "123.100.125.242", "1.255.0.0"},
+		[]string{"0.1.255.255", "1.1.1.1", "1.255.0.0", "123.100.125.242"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"ip, just IPv4, reversed",
+		[]string{"1.1.1.1", "0.1.255.255", "123.100.125.242", "1.255.0.0"},
+		[]string{"123.100.125.242", "1.255.0.0", "1.1.1.1", "0.1.255.255"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"ip, just IPv6",
+		[]string{"::1", "::0", "9876::fe01:1234:457f", "1234::"},
+		[]string{"::0", "::1", "1234::", "9876::fe01:1234:457f"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"ip, just IPv6, reversed",
+		[]string{"::1", "::0", "9876::fe01:1234:457f", "1234::"},
+		[]string{"9876::fe01:1234:457f", "1234::", "::1", "::0"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"ip, mixed",
+		[]string{"::1", "::0", "255.255.255.255", "::1234", "9876::fe01:1234:457f", "1.2.3.4", "1234::"},
+		[]string{"::0", "::1", "::1234", "1.2.3.4", "255.255.255.255", "1234::", "9876::fe01:1234:457f"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"ip, mixed, reversed",
+		[]string{"::1", "::0", "255.255.255.255", "::1234", "9876::fe01:1234:457f", "1.2.3.4", "1234::"},
+		[]string{"9876::fe01:1234:457f", "1234::", "255.255.255.255", "1.2.3.4", "::1234", "::1", "::0"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+}
+
+func Test_ipSort(t *testing.T) {
+	for _, test := range ipSortTests {
+		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
+			testOneCase(t, test, ipSort)
+		})
+	}
+
+	params := SortParams{
+		language.Und,
+		false,
+		false,
+		UnixPaths,
+	}
+	err := ipSort([]string{"1.2.3.4", "not an ip", "4.3.2.1"}, params)
+	d := detest.New(t)
+	d.Is(
+		err.Error(),
+		"invalid IP address 'not an ip' at line 2",
+		"got expected error when line contains a non-ip",
+	)
+}
+
 func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
 	d := detest.New(t)
 	// If the test fails and we haven't cloned then we cannot print

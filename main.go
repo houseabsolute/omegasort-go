@@ -265,15 +265,15 @@ This method assumes that each line is an IPv4 or IPv6 address (not a network).
 
 The sorting method is the same as if each line were the corresponding integer for the address.
 
-This sorting method accepts the --case-insensitive and --reverse flags.
+This sorting method accepts the --reverse flag.
 
 ## Network Sort
 
 This method assumes that each line is an IPv4 or IPv6 network in CIDR notation.
 
-If there are two networks with the same base address are sorted with the larger network first (so 1.1.1.0/24 comes before 1.1.1.0/28).
+If there are two networks with the same base address they are sorted with the larger network first (so 1.1.1.0/24 comes before 1.1.1.0/28).
 
-This sorting method accepts the --case-insensitive and --reverse flags.
+This sorting method accepts the --reverse flag.
 
 `
 

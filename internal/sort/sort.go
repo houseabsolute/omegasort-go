@@ -1,6 +1,9 @@
 package sort
 
 import (
+	"bytes"
+	"fmt"
+	"net"
 	"regexp"
 	"sort"
 	"strconv"
@@ -228,7 +231,43 @@ func isDriveLetter(elem string) bool {
 }
 
 func ipSort(lines []string, p SortParams) error {
-	return nil
+	var err error
+	sort.Slice(
+		lines,
+		func(i, j int) bool {
+			if err != nil {
+				return false
+			}
+
+			addrI := net.ParseIP(lines[i])
+			if addrI == nil {
+				err = fmt.Errorf("invalid IP address '%s' at line %d", lines[i], i+1)
+				return false
+			}
+
+			addrJ := net.ParseIP(lines[j])
+			if addrJ == nil {
+				err = fmt.Errorf("invalid IP address '%s' at line %d", lines[j], j+1)
+				return false
+			}
+
+			var less *bool
+			if len(addrI) != len(addrJ) {
+				less = boolPointer(len(addrI) < len(addrJ))
+			}
+
+			if less == nil {
+				less = boolPointer(bytes.Compare(addrI, addrJ) < 0)
+			}
+
+			if p.Reverse {
+				return !*less
+			}
+			return *less
+		},
+	)
+
+	return err
 }
 
 func networkSort(lines []string, p SortParams) error {
