@@ -7,7 +7,7 @@ if (( $? != 0 )); then
     status+=1
 fi
 
-./dev/bin/run-golangci-lint.sh
+./bin/precious lint -a
 if (( $? != 0 )); then
     status+=2
 fi

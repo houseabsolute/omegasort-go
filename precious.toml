@@ -1,0 +1,32 @@
+[commands.golangci-lint]
+type = "lint"
+include = "."
+on_dir  = true
+cmd = [
+    "golangci-lint",
+    "run",
+    "-c",
+    "$PRECIOUS_ROOT/golangci-lint.yml",
+    "--skip-dirs", "internal/guesswidth",
+    "--skip-dirs", "internal/posixpath",
+    "--skip-dirs", "internal/winpath",
+]
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
+
+[commands.check-go-mod]
+type = "lint"
+include = "."
+on_dir  = true
+cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
+expect_stderr = true
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
+
+[commands.goimports]
+type = "both"
+include = "**/*.go"
+cmd = ["goimports"]
+lint_flag = "-l"
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
