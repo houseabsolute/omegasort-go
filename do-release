@@ -1,0 +1,3 @@
+#!/bin/bash
+
+goreleaser release --release-notes=./Changes.md --rm-dist $@
