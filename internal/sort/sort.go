@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/araddon/dateparse"
 	"github.com/houseabsolute/omegasort/internal/posixpath"
 	"github.com/houseabsolute/omegasort/internal/winpath"
 	"github.com/projectcalico/felix/ip"
@@ -108,6 +109,7 @@ func numberedTextSort(lines []string, p SortParams) error {
 
 			matchI := numberedTextRE.FindStringSubmatch(lines[i])
 			matchJ := numberedTextRE.FindStringSubmatch(lines[j])
+
 			var less *bool
 			switch {
 			case matchI[1] != "" && matchJ[1] != "":
@@ -140,8 +142,52 @@ func numberedTextSort(lines []string, p SortParams) error {
 	return err
 }
 
+var datetimeTextRE = regexp.MustCompile(`\A(\d\S+)(?:\s*|\z)`)
+
 func datetimeTextSort(lines []string, p SortParams) error {
-	return nil
+	comparer := stringComparer(p.Locale, p.CaseInsensitive, p.Reverse)
+	var err error
+
+	sort.Slice(
+		lines,
+		func(i, j int) bool {
+			if err != nil {
+				return false
+			}
+
+			matchI := datetimeTextRE.FindStringSubmatch(lines[i])
+			matchJ := datetimeTextRE.FindStringSubmatch(lines[j])
+
+			var less *bool
+			switch {
+			case len(matchI) > 0 && len(matchJ) > 0 && matchI[1] != "" && matchJ[1] != "":
+				timeI, errI := dateparse.ParseStrict(matchI[1])
+				timeJ, errJ := dateparse.ParseStrict(matchJ[1])
+				if errI == nil && errJ == nil && !timeI.Equal(timeJ) {
+					less = boolPointer(timeI.Before(timeJ))
+				}
+				if errI != nil {
+					err = errI
+				} else if errJ != nil {
+					err = errJ
+				}
+			case len(matchI) > 0 && matchI[1] != "":
+				less = boolPointer(true)
+			case len(matchJ) > 0 && matchJ[1] != "":
+				less = boolPointer(false)
+			}
+			if less != nil {
+				if p.Reverse {
+					return !*less
+				}
+				return *less
+			}
+
+			return comparer(lines[i], lines[j])
+		},
+	)
+
+	return err
 }
 
 func pathSort(lines []string, p SortParams) error {
@@ -271,7 +317,6 @@ func ipSort(lines []string, p SortParams) error {
 	return err
 }
 
-//
 func networkSort(lines []string, p SortParams) error {
 	var err error
 	sort.Slice(

@@ -608,6 +608,139 @@ func Test_networkSort(t *testing.T) {
 	)
 }
 
+var datetimeTextSortTests = []testCase{
+	{
+		"datetime locale-free ASCII text",
+		[]string{"2017-1-12 hello", "2014-05-07 foo", "2018-12-30 bar", "2014-05-07 FUN"},
+		[]string{"2014-05-07 FUN", "2014-05-07 foo", "2017-1-12 hello", "2018-12-30 bar"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free ASCII text, case-insensitive",
+		[]string{"2017-1-12 hello", "2014-05-07 foo", "2018-12-30 bar", "2014-05-07 FUN"},
+		[]string{"2014-05-07 foo", "2014-05-07 FUN", "2017-1-12 hello", "2018-12-30 bar"},
+		SortParams{
+			language.Und,
+			true,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free ASCII text, reversed",
+		[]string{"2017-1-12 hello", "2014-05-07 foo", "2018-12-30 bar", "2014-05-07 FUN"},
+		[]string{"2018-12-30 bar", "2017-1-12 hello", "2014-05-07 foo", "2014-05-07 FUN"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free ASCII text, case-insensitive, reversed",
+		[]string{"2017-1-12 hello", "2014-05-07 foo", "2018-12-30 bar", "2014-05-07 FUN"},
+		[]string{"2018-12-30 bar", "2017-1-12 hello", "2014-05-07 FUN", "2014-05-07 foo"},
+		SortParams{
+			language.Und,
+			true,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free German text",
+		[]string{"2017-1-12 hello", "2014-05-07 zoo", "2018-12-30 bar", "2014-05-07 öoo"},
+		[]string{"2014-05-07 öoo", "2014-05-07 zoo", "2017-1-12 hello", "2018-12-30 bar"},
+		SortParams{
+			language.German,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free German text, reversed",
+		[]string{"2017-1-12 hello", "2014-05-07 zoo", "2018-12-30 bar", "2014-05-07 öoo"},
+		[]string{"2018-12-30 bar", "2017-1-12 hello", "2014-05-07 zoo", "2014-05-07 öoo"},
+		SortParams{
+			language.German,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free Swedish text",
+		[]string{"2017-1-12 hello", "2014-05-07 zoo", "2018-12-30 bar", "2014-05-07 öoo"},
+		[]string{"2014-05-07 zoo", "2014-05-07 öoo", "2017-1-12 hello", "2018-12-30 bar"},
+		SortParams{
+			language.Swedish,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime locale-free Swedish text, reversed",
+		[]string{"2017-1-12 hello", "2014-05-07 zoo", "2018-12-30 bar", "2014-05-07 öoo"},
+		[]string{"2018-12-30 bar", "2017-1-12 hello", "2014-05-07 öoo", "2014-05-07 zoo"},
+		SortParams{
+			language.Swedish,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"mixed datetime and non-datetime",
+		[]string{"2017-1-12 hello", "no dt", "also none", "1973-01-01 and"},
+		[]string{"1973-01-01 and", "2017-1-12 hello", "also none", "no dt"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+	{
+		"mixed datetime and non-datetime, reversed",
+		[]string{"2017-1-12 hello", "no dt", "also none", "1973-01-01 and"},
+		[]string{"no dt", "also none", "2017-1-12 hello", "1973-01-01 and"},
+		SortParams{
+			language.Und,
+			false,
+			true,
+			UnixPaths,
+		},
+	},
+	{
+		"datetime and dates",
+		[]string{"2017-1-12T01:00:37", "1001-01-02", "2017-1-12T14:01:01"},
+		[]string{"1001-01-02", "2017-1-12T01:00:37", "2017-1-12T14:01:01"},
+		SortParams{
+			language.Und,
+			false,
+			false,
+			UnixPaths,
+		},
+	},
+}
+
+func Test_datetimeTextSort(t *testing.T) {
+	for _, test := range datetimeTextSortTests {
+		t.Run(test.name, func(t *testing.T) {
+			//nolint:scopelint
+			testOneCase(t, test, datetimeTextSort)
+		})
+	}
+}
+
 func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
 	d := detest.New(t)
 	// If the test fails and we haven't cloned then we cannot print
