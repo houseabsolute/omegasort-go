@@ -82,7 +82,7 @@ var AvailableSorts = []Type{
 	},
 	{
 		"network",
-		"sort the file assuming that each line is a network",
+		"sort the file assuming that each line is a network in CIDR form",
 		false,
 		false,
 		networkSort,

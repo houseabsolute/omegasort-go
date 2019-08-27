@@ -81,7 +81,7 @@ func new() (*omegasort, error) {
 	).Short('l').Default("").String()
 	caseInsensitive := app.Flag(
 		"case-insensitive",
-		"Sort case-insensitively. Note that many Unicode locales always do this so if you specify"+
+		"Sort case-insensitively. Note that many locales always do this so if you specify"+
 			" a locale you may get case-insensitive output regardless of this flag.").
 		Short('c').Default("false").Bool()
 	reverse := app.Flag(
@@ -237,6 +237,8 @@ Lines should not have any leading space before the number. The number can either
 
 The lines will be sorted numerically first. If two lines have the same number they will be sorted by text as above.
 
+Lines without numbers always sort after lines with numbers.
+
 This sorting method accepts the --locale, --case-insensitive, and --reverse flags.
 
 ## Path Sort
@@ -247,17 +249,17 @@ The paths are sorted by the following rules:
 
 * Absolute paths come before relative.
 * Paths are sorted by depth before sorting by the path content, so /z comes before /a/a.
-* If you pass the --windows path, then paths with drive letters are sorted based on the drive letter first. Paths with drive letters sort before paths without them.
+* If you pass the --windows argument, then paths with drive letters are sorted based on the drive letter first. Paths with drive letters sort before paths without them.
 
 This sorting method accepts the --locale, --case-insensitive, and --reverse flags in addition to the --windows flag.
 
 ## Datetime Sort
 
-This sorting method assumes that each line starts with a date or datetime.
+This sorting method assumes that each line starts with a date or datetime, without any space in it. That means datetimes need to be in a format like "2019-08-27T19:13:16".
 
 Lines should not have any leading space before the datetime.
 
-This sorting method accepts the --locale, --case-insensitive, and --reverse flags in addition to the ??? flag.
+This sorting method accepts the --locale, --case-insensitive, and --reverse flags.
 
 ## IP Sort
 
