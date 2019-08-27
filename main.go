@@ -249,7 +249,7 @@ The paths are sorted by the following rules:
 
 * Absolute paths come before relative.
 * Paths are sorted by depth before sorting by the path content, so /z comes before /a/a.
-* If you pass the --windows argument, then paths with drive letters are sorted based on the drive letter first. Paths with drive letters sort before paths without them.
+* If you pass the --windows flag, then paths with drive letters are sorted based on the drive letter first. Paths with drive letters sort before paths without them.
 
 This sorting method accepts the --locale, --case-insensitive, and --reverse flags in addition to the --windows flag.
 
