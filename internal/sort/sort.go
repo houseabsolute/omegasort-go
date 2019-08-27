@@ -116,6 +116,11 @@ func numberedTextSort(lines []string, p SortParams) error {
 				if errI == nil && errJ == nil && numI != numJ {
 					less = boolPointer(numI < numJ)
 				}
+				if errI != nil {
+					err = errI
+				} else if errJ != nil {
+					err = errJ
+				}
 			case matchI[1] != "":
 				less = boolPointer(true)
 			case matchJ[1] != "":

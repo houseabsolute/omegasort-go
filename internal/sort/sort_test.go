@@ -279,6 +279,11 @@ func Test_numberedTextSort(t *testing.T) {
 			testOneCase(t, test, numberedTextSort)
 		})
 	}
+	// I would like to test the case where parsing the number returns an error
+	// but I'm not sure that can actually happen. AFAICT the regex I use to
+	// extract the number will always produce something that
+	// strconv.ParseFloat() will handle. Even for very large numbers it just
+	// ends up truncating the value.
 }
 
 var pathSortTests = []testCase{
