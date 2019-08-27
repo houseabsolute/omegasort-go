@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/araddon/dateparse"
+	"github.com/houseabsolute/omegasort/internal/ip"
 	"github.com/houseabsolute/omegasort/internal/posixpath"
 	"github.com/houseabsolute/omegasort/internal/winpath"
-	"github.com/projectcalico/felix/ip"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"

@@ -11,6 +11,7 @@ status+=$?
 golangci-lint run \
     -c ./.golangci-lint-internal.yml \
     --skip-dirs internal/guesswidth \
+    --skip-dirs internal/ip \
     --skip-dirs internal/posixpath \
     --skip-dirs internal/winpath \
     ./internal/...
