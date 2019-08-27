@@ -141,15 +141,10 @@ func datetimeTextSort(lines []string, p SortParams) error {
 
 func pathSort(lines []string, p SortParams) error {
 	comparer := stringComparer(p.Locale, p.CaseInsensitive, p.Reverse)
-	var err error
 
 	sort.Slice(
 		lines,
 		func(i, j int) bool {
-			if err != nil {
-				return false
-			}
-
 			var less *bool
 			// Absolute paths sort before relative
 			if isAbs(lines[i], p.PathType) && !isAbs(lines[j], p.PathType) {
@@ -206,7 +201,7 @@ func pathSort(lines []string, p SortParams) error {
 		},
 	)
 
-	return err
+	return nil
 }
 
 func splitPath(path string, typ pathType) []string {
