@@ -22,7 +22,7 @@ var version = "0.0.1"
 type omegasort struct {
 	opts       *opts
 	app        *kingpin.Application
-	sort       sort.Type
+	sort       sort.Approach
 	locale     language.Tag
 	lineEnding []byte
 }

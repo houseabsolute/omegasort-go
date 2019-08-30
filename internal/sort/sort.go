@@ -20,10 +20,13 @@ import (
 type pathType int
 
 const (
+	// UnixPaths indicates that we are using unix-style paths.
 	UnixPaths pathType = iota
+	// WindowsPaths indicates that we are using Windows-style paths.
 	WindowsPaths
 )
 
+// SortParams defines the common parameters for sort operations.
 type SortParams struct {
 	Locale          language.Tag
 	CaseInsensitive bool
@@ -33,7 +36,8 @@ type SortParams struct {
 
 type sortFunc func(lines []string, p SortParams) error
 
-type Type struct {
+// Approach defines a single sorting approach.
+type Approach struct {
 	Name             string
 	Description      string
 	SupportsLocale   bool
@@ -41,7 +45,9 @@ type Type struct {
 	SortFunc         sortFunc
 }
 
-var AvailableSorts = []Type{
+// AvailableSorts is a slice where each member is an Approach defining a
+// single one of the available sort approaches.
+var AvailableSorts = []Approach{
 	{
 		"text",
 		"sort the file as text according to the specified locale",
