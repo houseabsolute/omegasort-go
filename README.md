@@ -103,4 +103,6 @@ larger network first (so 1.1.1.0/24 comes before 1.1.1.0/28).
 
 This sorting method accepts the `--reverse` flag.
 
+## Build Status
 
+[![Build Status](https://travis-ci.com/houseabsolute/omegasort.svg?branch=master)](https://travis-ci.com/houseabsolute/omegasort)
