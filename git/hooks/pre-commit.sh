@@ -2,14 +2,14 @@
 
 status=0
 
-go generate ./...
-if (( $? != 0 )); then
-    status+=1
+PRECIOUS=$(which precious)
+if [[ -z $PRECIOUS ]]; then
+    PRECIOUS=./bin/precious
 fi
 
-./bin/precious lint -s
+"$PRECIOUS" lint -s
 if (( $? != 0 )); then
-    status+=2
+    status+=1
 fi
 
 exit $status
