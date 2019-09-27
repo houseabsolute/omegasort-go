@@ -1,6 +1,7 @@
-package sort
+package sorters
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/houseabsolute/detest"
@@ -491,10 +492,12 @@ func Test_ipSort(t *testing.T) {
 		false,
 		UnixPaths,
 	}
-	err := ipSort([]string{"1.2.3.4", "not an ip", "4.3.2.1"}, params)
+	lines := []string{"1.2.3.4", "not an ip", "4.3.2.1"}
+	sorter, errRef := ipSort(&lines, params)
+	sort.Slice(lines, sorter)
 	d := detest.New(t)
 	d.Is(
-		err.Error(),
+		(*errRef).Error(),
 		"invalid IP address 'not an ip' at line 2",
 		"got expected error when line contains a non-ip",
 	)
@@ -593,19 +596,28 @@ func Test_networkSort(t *testing.T) {
 		false,
 		UnixPaths,
 	}
-	err := networkSort([]string{"1.2.3.4/32", "not a network", "4.3.2.0/24"}, params)
-	d.Is(
-		err.Error(),
-		"invalid CIDR address: not a network",
-		"got expected error when line contains a non-network",
-	)
 
-	err = networkSort([]string{"1.2.3.4/32", "1.1.1.1/-1", "4.3.2.0/24"}, params)
-	d.Is(
-		err.Error(),
-		"invalid CIDR address: 1.1.1.1/-1",
-		"got expected error when line contains a non-network",
-	)
+	{
+		lines := []string{"1.2.3.4/32", "not a network", "4.3.2.0/24"}
+		sorter, errRef := networkSort(&lines, params)
+		sort.Slice(lines, sorter)
+		d.Is(
+			(*errRef).Error(),
+			"invalid CIDR address: not a network",
+			"got expected error when line contains a non-network",
+		)
+	}
+
+	{
+		lines := []string{"1.2.3.4/32", "1.1.1.1/-1", "4.3.2.0/24"}
+		sorter, errRef := networkSort(&lines, params)
+		sort.Slice(lines, sorter)
+		d.Is(
+			(*errRef).Error(),
+			"invalid CIDR address: 1.1.1.1/-1",
+			"got expected error when line contains a non-network",
+		)
+	}
 }
 
 var datetimeTextSortTests = []testCase{
@@ -741,15 +753,16 @@ func Test_datetimeTextSort(t *testing.T) {
 	}
 }
 
-func testOneCase(t *testing.T, test testCase, sorter sortFunc) {
+func testOneCase(t *testing.T, test testCase, sortMaker func(*[]string, SortParams) (sortFunc, *error)) {
 	d := detest.New(t)
 	// If the test fails and we haven't cloned then we cannot print
 	// out debugging info with the original and the (improperly
 	// sorted) list.
 	clone := make([]string, len(test.input))
 	copy(clone, test.input)
-	err := sorter(clone, test.params)
-	d.Is(err, nil, "no error from calling sorting func")
+	sorter, errRef := sortMaker(&clone, test.params)
+	sort.Slice(clone, sorter)
+	d.Is(*errRef, nil, "no error from calling sorting func")
 	d.Is(
 		clone,
 		d.Slice(func(st *detest.SliceTester) {

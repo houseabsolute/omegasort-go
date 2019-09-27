@@ -8,11 +8,12 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/eidolon/wordwrap"
 	"github.com/houseabsolute/omegasort/internal/guesswidth"
-	"github.com/houseabsolute/omegasort/internal/sort"
+	"github.com/houseabsolute/omegasort/internal/sorters"
 	"golang.org/x/text/language"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -22,7 +23,7 @@ var version = "0.0.1"
 type omegasort struct {
 	opts       *opts
 	app        *kingpin.Application
-	sort       sort.Approach
+	sort       sorters.Approach
 	locale     language.Tag
 	lineEnding []byte
 }
@@ -51,7 +52,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	os.Exit(0)
@@ -66,7 +67,7 @@ func new() (*omegasort, error) {
 	app.HelpFlag.Short('h')
 
 	validSorts := []string{}
-	for _, as := range sort.AvailableSorts {
+	for _, as := range sorters.AvailableSorts {
 		validSorts = append(validSorts, as.Name)
 	}
 	// We cannot set .Required for this flag (or any others) because we want
@@ -134,7 +135,7 @@ func new() (*omegasort, error) {
 	}
 
 	appOpts.sort = *sortType
-	for _, as := range sort.AvailableSorts {
+	for _, as := range sorters.AvailableSorts {
 		if as.Name == appOpts.sort {
 			o.sort = as
 			break
@@ -164,7 +165,7 @@ func sortDocs() string {
 
 	width := guesswidth.Guess(os.Stderr)
 	longest := 0
-	for _, as := range sort.AvailableSorts {
+	for _, as := range sorters.AvailableSorts {
 		if len(as.Name) > longest {
 			longest = len(as.Name)
 		}
@@ -174,7 +175,7 @@ func sortDocs() string {
 
 	wrapper := wordwrap.Wrapper(width, false)
 
-	for _, as := range sort.AvailableSorts {
+	for _, as := range sorters.AvailableSorts {
 		indented := wrapper(as.Description)
 		docs += wordwrap.Indent(indented, fmt.Sprintf("  * %s - ", as.Name), false) + "\n"
 	}
@@ -297,13 +298,13 @@ func printExtendedDocs() {
 const firstChunk = 2048
 
 func (o *omegasort) run() error {
-	p := sort.SortParams{
+	p := sorters.SortParams{
 		Locale:          o.locale,
 		CaseInsensitive: o.opts.caseInsensitive,
 		Reverse:         o.opts.reverse,
 	}
 	if o.opts.windows {
-		p.PathType = sort.WindowsPaths
+		p.PathType = sorters.WindowsPaths
 	}
 
 	lines, err := o.readLines()
@@ -311,9 +312,21 @@ func (o *omegasort) run() error {
 		return err
 	}
 
-	err = o.sort.SortFunc(lines, p)
-	if err != nil {
-		return err
+	sorter, errRef := o.sort.MakeSortFunc(&lines, p)
+	if o.opts.check {
+		ok := sort.SliceIsSorted(lines, sorter)
+		if *errRef != nil {
+			return *errRef
+		}
+		if ok {
+		} else {
+		}
+		return nil
+	}
+
+	sort.Slice(lines, sorter)
+	if *errRef != nil {
+		return *errRef
 	}
 
 	out, err := o.outputFile()
