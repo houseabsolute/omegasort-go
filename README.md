@@ -1,8 +1,8 @@
 # What is this?
 
-Omegasort if a text file sorting tool that aims to be the last sorting tool you'll need.
+Omegasort is a text file sorting tool that aims to be the last sorting tool you'll need.
 
-I wrote this because I like to keep various types of files in a sorted order (gitignore files, lists of spelling stopwords, etc.). I wanted a tool I could call as part of my commit hooks and CI (using [precious](https://github.com/houseabsolute/precious).
+I wrote this because I like to keep various types of files in a sorted order (gitignore files, lists of spelling stopwords, etc.) and I wanted a tool I could call as part of my commit hooks and CI (using [precious](https://github.com/houseabsolute/precious)).
 
 ## usage: `omegasort [<flags>] [<file>]`
 
