@@ -19,7 +19,7 @@ I wrote this because I like to keep various types of files in a sorted order (gi
 | | `--windows` | Parse paths as Windows paths for path sort. |
 | `-i` | `--in-place` | Modify the file in place instead of making a backup. |
 | | `--stdout` | Print the sorted output to stdout instead of making a new file. |
-| | `--check` | Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2. |
+| | `--check` | Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 1. |
 | | `--debug` | Print out debugging info while running. |
 | | `--docs` | Print out extended sorting documentation. |
 

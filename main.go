@@ -41,6 +41,8 @@ type opts struct {
 	file            string
 }
 
+var notSortedError = errors.New("file is not sorted")
+
 func main() {
 	o, err := new()
 	if err != nil {
@@ -48,11 +50,19 @@ func main() {
 	}
 
 	if err = o.run(); err != nil {
+		if err == notSortedError {
+			_, err = os.Stderr.WriteString(fmt.Sprintf("The %s file is not sorted\n", o.opts.file))
+			if err != nil {
+				panic(err)
+			}
+			os.Exit(1)
+		}
+
 		_, err = os.Stderr.WriteString(fmt.Sprintf("error when sorting %s: %s\n", o.opts.file, err))
 		if err != nil {
 			panic(err)
 		}
-		os.Exit(1)
+		os.Exit(2)
 	}
 
 	os.Exit(0)
@@ -318,9 +328,10 @@ func (o *omegasort) run() error {
 		if *errRef != nil {
 			return *errRef
 		}
-		if ok {
-		} else {
+		if !ok {
+			return notSortedError
 		}
+
 		return nil
 	}
 
