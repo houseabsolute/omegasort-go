@@ -1,7 +1,11 @@
 [commands.golangci-lint]
 type = "lint"
 include = "**/*.go"
-exclude = [ "internal/ip/**/*.go" ]
+exclude = [
+    "internal/ip/**/*.go",
+    "internal/posixpath/**/*.go",
+    "internal/winpath/**/*.go",
+]
 on_dir = true
 run_once = true
 chdir = true
