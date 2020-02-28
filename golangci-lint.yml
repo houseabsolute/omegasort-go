@@ -1,5 +1,19 @@
 linters:
-  enable-all: true
+  enable:
+    - deadcode
+    - dupl
+    - errcheck
+    - goimports
+    - golint
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unused
+    - varcheck
   disable:
     - gochecknoglobals
 
