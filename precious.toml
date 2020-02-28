@@ -10,7 +10,6 @@ cmd = [
     "run",
     "-c",
     "$PRECIOUS_ROOT/golangci-lint.yml",
-    "--skip-dirs", "internal/guesswidth",
     "--skip-dirs", "internal/ip",
     "--skip-dirs", "internal/posixpath",
     "--skip-dirs", "internal/winpath",

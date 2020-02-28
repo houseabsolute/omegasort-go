@@ -10,6 +10,7 @@ require (
 	github.com/houseabsolute/detest v0.0.0-20190818095402-8e70761ef019
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
+	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/text v0.3.2
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )

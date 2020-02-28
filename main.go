@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/eidolon/wordwrap"
-	"github.com/houseabsolute/omegasort/internal/guesswidth"
 	"github.com/houseabsolute/omegasort/internal/sorters"
+	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/text/language"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -69,11 +69,16 @@ func main() {
 }
 
 func new() (*omegasort, error) {
+	sd, err := sortDocs()
+	if err != nil {
+		return nil, err
+	}
+
 	app := kingpin.New("omegasort", "The last text file sorting tool you'll ever need.").
 		Author("Dave Rolsky <autarch@urth.org>").
 		Version(version).
 		UsageWriter(os.Stdout).
-		UsageTemplate(kingpin.DefaultUsageTemplate + sortDocs())
+		UsageTemplate(kingpin.DefaultUsageTemplate + sd)
 	app.HelpFlag.Short('h')
 
 	validSorts := []string{}
@@ -134,7 +139,7 @@ func new() (*omegasort, error) {
 		opts: appOpts,
 	}
 
-	_, err := app.Parse(os.Args[1:])
+	_, err = app.Parse(os.Args[1:])
 	if err != nil {
 		return o, err
 	}
@@ -170,10 +175,14 @@ func new() (*omegasort, error) {
 	return o, err
 }
 
-func sortDocs() string {
+func sortDocs() (string, error) {
 	docs := "Sorting Options:\n"
 
-	width := guesswidth.Guess(os.Stderr)
+	_, width, err := terminal.GetSize(int(os.Stderr.Fd()))
+	if err != nil {
+		return "", err
+	}
+
 	longest := 0
 	for _, as := range sorters.AvailableSorts {
 		if len(as.Name) > longest {
@@ -190,7 +199,7 @@ func sortDocs() string {
 		docs += wordwrap.Indent(indented, fmt.Sprintf("  * %s - ", as.Name), false) + "\n"
 	}
 
-	return docs
+	return docs, nil
 }
 
 func (o *omegasort) validateArgs() error {
@@ -291,7 +300,11 @@ This sorting method accepts the --reverse flag.
 `
 
 func printExtendedDocs() {
-	width := guesswidth.Guess(os.Stdout)
+	_, width, err := terminal.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		panic(err)
+	}
+
 	wrapper := wordwrap.Wrapper(width, false)
 
 	lines := strings.Split(extendedSortDocs, "\n")
