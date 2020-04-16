@@ -6,9 +6,7 @@ exclude = [
     "internal/posixpath/**/*.go",
     "internal/winpath/**/*.go",
 ]
-on_dir = true
-run_once = true
-chdir = true
+run_mode = "root"
 cmd = [
     "golangci-lint",
     "run",
@@ -24,9 +22,7 @@ lint_failure_exit_codes = [1]
 [commands.check-go-mod]
 type = "lint"
 include = "**/*.go"
-on_dir = true
-run_once = true
-chdir = true
+run_mode = "root"
 cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
 expect_stderr = true
 ok_exit_codes = [0]
