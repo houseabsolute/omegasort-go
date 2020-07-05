@@ -178,7 +178,7 @@ func new() (*omegasort, error) {
 func sortDocs() (string, error) {
 	docs := "Sorting Options:\n"
 
-	_, width, err := terminal.GetSize(int(os.Stderr.Fd()))
+	width, _, err := terminal.GetSize(int(os.Stderr.Fd()))
 	if err != nil {
 		return "", err
 	}
