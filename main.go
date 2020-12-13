@@ -178,7 +178,7 @@ func new() (*omegasort, error) {
 func sortDocs() (string, error) {
 	docs := "Sorting Options:\n"
 
-	width, _, err := terminal.GetSize(int(os.Stderr.Fd()))
+	width, err := getWidth()
 	if err != nil {
 		return "", err
 	}
@@ -300,7 +300,7 @@ This sorting method accepts the --reverse flag.
 `
 
 func printExtendedDocs() {
-	_, width, err := terminal.GetSize(int(os.Stdout.Fd()))
+	width, err := getWidth()
 	if err != nil {
 		panic(err)
 	}
@@ -316,6 +316,17 @@ func printExtendedDocs() {
 			panic(err)
 		}
 	}
+}
+
+const maxWidth = 90
+
+func getWidth() (int, error) {
+	width, _, err := terminal.GetSize(int(os.Stderr.Fd()))
+	if width > maxWidth {
+		width = maxWidth
+	}
+
+	return width, err
 }
 
 const firstChunk = 2048

@@ -1,3 +1,10 @@
+## 0.03
+
+* Fix terminal width check. It was using the height as the width. In addition,
+  it now makes the text width 90 characters if the terminal is wider than
+  that.
+
+
 ## 0.02 - 2019-09-27
 
 * The --check flag was not implemented and now it is.
