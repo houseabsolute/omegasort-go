@@ -16,6 +16,7 @@ cmd = [
     "--skip-dirs", "internal/posixpath",
     "--skip-dirs", "internal/winpath",
 ]
+env = { "FAIL_ON_WARNINGS" = "1" }
 ok_exit_codes = [0]
 lint_failure_exit_codes = [1]
 
