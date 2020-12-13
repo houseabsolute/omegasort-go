@@ -8,8 +8,7 @@ function run () {
 }
 
 function install_tools () {
-    run "./dev/bin/download-golangci-lint.sh v1.17.1"
-    run "./dev/bin/download-precious.sh"
+    run "./dev/bin/download-golangci-lint.sh v1.33.0"
     run "go get golang.org/x/tools/cmd/goimports"
 }
 

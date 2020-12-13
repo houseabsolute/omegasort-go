@@ -1,0 +1,28 @@
+name: Linting
+
+on: [push, pull_request]
+
+env:
+  CRATE_NAME: precious
+  RUST_BACKTRACE: 1
+
+jobs:
+  lint:
+    name: Check that code is lint clean using precious
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dev tools
+        run: |
+          ./dev/bin/install-dev-tools.sh
+      - name: Download precious
+        uses: dsaltares/fetch-gh-release-asset@0.0.5
+        with:
+          repo: houseabsolute/precious
+          file: precious-Linux-x86_64.tar.gz
+      - name: Untar precious
+        run: |
+          tar -xvzf precious-Linux-x86_64.tar.gz
+      - name: Run precious
+        run: |
+          PATH=$PATH:./bin ./precious lint -a
