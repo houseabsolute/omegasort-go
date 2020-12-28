@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -46,7 +47,7 @@ var errNotSorted = errors.New("file is not sorted")
 func main() {
 	o, err := new()
 	if err != nil {
-		o.app.FatalUsage("%s\n", err)
+		log.Fatal(err)
 	}
 
 	if err = o.run(); err != nil {
