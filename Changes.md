@@ -2,6 +2,9 @@
 
 * Fix handling of errors during initialization. These sorts of error could
   lead to a confusing panic instead of showing the actual error message.
+  
+* Handle the case where stdout is not connected to the terminal. Previously
+  this caused an error during initialization.
 
 
 ## 0.0.3 - 2020-12-27

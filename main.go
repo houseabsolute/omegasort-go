@@ -11,6 +11,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"syscall"
 
 	"github.com/eidolon/wordwrap"
 	"github.com/houseabsolute/omegasort/internal/sorters"
@@ -325,6 +326,10 @@ func getWidth() (int, error) {
 	width, _, err := terminal.GetSize(int(os.Stderr.Fd()))
 	if width > maxWidth {
 		width = maxWidth
+	}
+
+	if err == syscall.ENOTTY {
+		return 80, nil
 	}
 
 	return width, err
