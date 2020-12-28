@@ -20,15 +20,6 @@ env = { "FAIL_ON_WARNINGS" = "1" }
 ok_exit_codes = [0]
 lint_failure_exit_codes = [1]
 
-[commands.check-go-mod]
-type = "lint"
-include = "**/*.go"
-run_mode = "root"
-cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
-expect_stderr = true
-ok_exit_codes = [0]
-lint_failure_exit_codes = [1]
-
 [commands.goimports]
 type = "tidy"
 include = "**/*.go"
