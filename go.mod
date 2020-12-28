@@ -7,8 +7,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4 // indirect
 	github.com/araddon/dateparse v0.0.0-20190622164848-0fb0a474d195
 	github.com/eidolon/wordwrap v0.0.0-20161011182207-e0f54129b8bb
-	github.com/houseabsolute/detest v0.0.0-20190818095402-8e70761ef019
-	github.com/mattn/go-runewidth v0.0.4 // indirect
+	github.com/houseabsolute/detest v0.0.1
 	github.com/stretchr/testify v1.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/text v0.3.2

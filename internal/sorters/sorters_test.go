@@ -4,7 +4,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/houseabsolute/detest"
+	"github.com/houseabsolute/detest/pkg/detest"
 	"golang.org/x/text/language"
 )
 
