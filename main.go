@@ -481,7 +481,7 @@ func (o *omegasort) moveFiles(from string) error {
 	if !o.opts.inPlace {
 		err := os.Rename(o.opts.file, o.opts.file+".bak")
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
