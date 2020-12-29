@@ -1,4 +1,4 @@
-## 0.0.4
+## 0.0.4 - 2020-12-29
 
 * Fix handling of errors during initialization. These sorts of error could
   lead to a confusing panic instead of showing the actual error message.
