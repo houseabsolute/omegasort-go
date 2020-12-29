@@ -20,7 +20,7 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-var version = "0.0.3"
+var version = "0.0.4"
 
 type omegasort struct {
 	opts       *opts
