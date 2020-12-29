@@ -365,7 +365,7 @@ func (o *omegasort) run() error {
 		return nil
 	}
 
-	sort.Slice(lines, sorter)
+	sort.SliceStable(lines, sorter)
 	if *errRef != nil {
 		return *errRef
 	}
