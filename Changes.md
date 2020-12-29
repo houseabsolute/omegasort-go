@@ -6,6 +6,9 @@
 * Handle the case where stdout is not connected to the terminal. Previously
   this caused an error during initialization.
 
+* Replace file renaming with copying to handle the case where the temp file we
+  sort into and the original file are not on the same partition.
+
 
 ## 0.0.3 - 2020-12-27
 

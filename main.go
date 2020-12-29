@@ -387,7 +387,7 @@ func (o *omegasort) run() error {
 	}
 
 	if !o.opts.toStdout {
-		err := o.moveFiles(out.Name())
+		err := o.updateFiles(out.Name())
 		if err != nil {
 			return err
 		}
@@ -483,13 +483,44 @@ func (o *omegasort) outputFile() (*os.File, error) {
 	return ioutil.TempFile("", "omegasort")
 }
 
-func (o *omegasort) moveFiles(from string) error {
+func (o *omegasort) updateFiles(from string) error {
 	if !o.opts.inPlace {
-		err := os.Rename(o.opts.file, o.opts.file+".bak")
+		bak := o.opts.file + ".bak"
+		err := copy(o.opts.file, bak)
 		if err != nil {
-			return err
+			return fmt.Errorf("error copying %s to %s: %w", o.opts.file, bak, err)
 		}
 	}
 
-	return os.Rename(from, o.opts.file)
+	if err := copy(from, o.opts.file); err != nil {
+		return fmt.Errorf("error copying %s to %s: %w", from, o.opts.file, err)
+	}
+
+	if err := os.Remove(from); err != nil {
+		return fmt.Errorf("error deleting %s: %w", from, err)
+	}
+
+	return nil
+}
+
+func copy(from, to string) error {
+	in, err := os.Open(from)
+	if err != nil {
+		return fmt.Errorf("error opening %s: %w", from, err)
+	}
+	// nolint:errcheck
+	defer in.Close()
+
+	out, err := os.Create(to)
+	if err != nil {
+		return fmt.Errorf("error opening %s: %w", to, err)
+	}
+	// nolint:errcheck
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	return out.Close()
 }
