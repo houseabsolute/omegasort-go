@@ -8,7 +8,10 @@ function run () {
 }
 
 function install_tools () {
-    run "./dev/bin/download-golangci-lint.sh v1.33.0"
+    curl --silent --location \
+         https://raw.githubusercontent.com/houseabsolute/ubi/master/bootstrap/bootstrap-ubi.sh |
+        sh
+    run "ubi --project golangci/golangci-lint --in ~/bin"
     run "go get golang.org/x/tools/cmd/goimports"
 }
 
