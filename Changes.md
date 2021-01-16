@@ -10,7 +10,7 @@
   sort into and the original file are not on the same partition.
 
 * Fix bug where sorting wasn't stable in the presence of two
-  case-insensitively identical lines (and possibly other similar scenarious)>
+  case-insensitively identical lines (and possibly other similar scenarios).
 
 
 ## 0.0.3 - 2020-12-27
