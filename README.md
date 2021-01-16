@@ -4,6 +4,27 @@ Omegasort is a text file sorting tool that aims to be the last sorting tool you'
 
 I wrote this because I like to keep various types of files in a sorted order (gitignore files, lists of spelling stopwords, etc.) and I wanted a tool I could call as part of my commit hooks and CI (using [precious](https://github.com/houseabsolute/precious)).
 
+## Installation
+
+There are several ways to install this tool.
+
+### Use ubi
+
+Install my [universal binary installer
+(ubi)](https://github.com/houseabsolute/ubi) tool and you can use it to
+download `omegasort` and many other tools.
+
+```
+$> ubi --project houseabsolute/omegasort --in ~/bin
+```
+
+### Binary Releases
+
+You can grab a binary release from the [releases
+page](https://github.com/houseabsolute/omegasort/releases). Untar the tarball
+and put the executable it contains somewhere in your path and you're good to
+go.
+
 ## usage: `omegasort [<flags>] [<file>]`
 
 ### Flags:
