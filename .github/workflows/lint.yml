@@ -15,14 +15,6 @@ jobs:
       - name: Install dev tools
         run: |
           ./dev/bin/install-dev-tools.sh
-      - name: Download precious
-        uses: dsaltares/fetch-gh-release-asset@0.0.5
-        with:
-          repo: houseabsolute/precious
-          file: precious-Linux-x86_64.tar.gz
-      - name: Untar precious
-        run: |
-          tar -xvzf precious-Linux-x86_64.tar.gz
       - name: Run precious
         run: |
           PATH=$PATH:./bin ./precious lint -a

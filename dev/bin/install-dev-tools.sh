@@ -11,6 +11,7 @@ function install_tools () {
     curl --silent --location \
          https://raw.githubusercontent.com/houseabsolute/ubi/master/bootstrap/bootstrap-ubi.sh |
         sh
+    run "ubi --project houseabsolute/precious --in ~/bin"
     run "ubi --project golangci/golangci-lint --in ~/bin"
     run "go get golang.org/x/tools/cmd/goimports"
 }
