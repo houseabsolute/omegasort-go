@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dev tools
         run: |
-          ./dev/bin/install-dev-tools.sh
+          mkdir ~/bin
+          PATH=$PATH:~/bin ./dev/bin/install-dev-tools.sh
       - name: Run precious
         run: |
-          PATH=$PATH:./bin ./precious lint -a
+          PATH=$PATH:~/bin precious lint -a
