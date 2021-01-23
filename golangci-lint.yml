@@ -1,4 +1,5 @@
 linters:
+  disable-all: true
   enable:
     - deadcode
     - dupl
@@ -16,8 +17,7 @@ linters:
     - unused
     - varcheck
     - whitespace
-  disable:
-    - gochecknoglobals
+  fast: false
 
 linters-settings:
   govet:
