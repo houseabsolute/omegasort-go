@@ -15,7 +15,7 @@ import (
 
 	"github.com/eidolon/wordwrap"
 	"github.com/houseabsolute/omegasort/internal/sorters"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"golang.org/x/text/language"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -323,7 +323,7 @@ func printExtendedDocs() {
 const maxWidth = 90
 
 func getWidth() (int, error) {
-	width, _, err := terminal.GetSize(int(os.Stderr.Fd()))
+	width, _, err := term.GetSize(int(os.Stderr.Fd()))
 	if width > maxWidth {
 		width = maxWidth
 	}
