@@ -26,3 +26,13 @@ type = "tidy"
 include = "**/*.go"
 cmd = ["goimports", "-w"]
 ok_exit_codes = [0]
+
+[commands.check-go-mod]
+type = "lint"
+include = "**/*.go"
+run_mode = "dirs"
+chdir = true
+cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
+expect_stderr = true
+ok_exit_codes = [0]
+lint_failure_exit_codes = [1]
