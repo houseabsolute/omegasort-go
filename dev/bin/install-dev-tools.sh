@@ -13,7 +13,11 @@ function install_tools () {
         sh
     run "ubi --project houseabsolute/precious --in ~/bin"
     run "ubi --project golangci/golangci-lint --in ~/bin"
+    # If we run this in the checkout dir it can mess with out go.mod and
+    # go.sum.
+    pushd /tmp
     run "go get golang.org/x/tools/cmd/goimports"
+    popd
 }
 
 if [ "$1" == "-v" ]; then
