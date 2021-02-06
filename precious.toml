@@ -6,16 +6,12 @@ exclude = [
     "internal/posixpath/**/*.go",
     "internal/winpath/**/*.go",
 ]
-run_mode = "root"
-chdir = true
+run_mode = "dirs"
 cmd = [
     "golangci-lint",
     "run",
     "-c",
     "$PRECIOUS_ROOT/golangci-lint.yml",
-    "--skip-dirs", "internal/ip",
-    "--skip-dirs", "internal/posixpath",
-    "--skip-dirs", "internal/winpath",
 ]
 env = { "FAIL_ON_WARNINGS" = "1" }
 ok_exit_codes = [0]
