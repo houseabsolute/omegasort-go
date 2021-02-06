@@ -12,6 +12,7 @@ cmd = [
     "run",
     "-c",
     "$PRECIOUS_ROOT/golangci-lint.yml",
+    "--allow-parallel-runners",
 ]
 env = { "FAIL_ON_WARNINGS" = "1" }
 ok_exit_codes = [0]
