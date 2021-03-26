@@ -2,10 +2,6 @@ name: Linting
 
 on: [push, pull_request]
 
-env:
-  CRATE_NAME: precious
-  RUST_BACKTRACE: 1
-
 jobs:
   lint:
     name: Check that code is lint clean using precious
