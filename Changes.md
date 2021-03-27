@@ -1,4 +1,4 @@
-## 0.0.5
+## 0.0.5 - 2021-03-27
 
 * Added a --unique flag. This can also be used with --check to check that a
   file is both sorted and unique.
