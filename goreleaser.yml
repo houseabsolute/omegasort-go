@@ -12,6 +12,7 @@ builds:
       - windows
 archives:
   - replacements:
+      freebsd: FreeBSD
       darwin: Darwin
       linux: Linux
       windows: Windows
