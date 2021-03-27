@@ -379,7 +379,7 @@ func (o *omegasort) run() error {
 	}
 
 	for _, l := range lines {
-		_, err := out.WriteString(l)
+		_, err = out.WriteString(l)
 		if err != nil {
 			return err
 		}
@@ -387,6 +387,13 @@ func (o *omegasort) run() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// We need to close this before we remove it on Windows. Might as well do
+	// it everywhere.
+	err = out.Close()
+	if err != nil {
+		return err
 	}
 
 	if !o.opts.toStdout {
