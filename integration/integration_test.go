@@ -193,8 +193,8 @@ func runOneTest(t *testing.T, td, path string) {
 	d.Require(d.Is(err, nil, fmt.Sprintf("no error writing to %s", tf)))
 
 	out, err := runOmegasort(d, c, tf)
-	d.Is("", out, "no output when running omegasort")
-	d.Require(d.Is(err, nil, "no error running omegasort"))
+	d.Is("", out, "no output when running omegasort on %s", tf)
+	d.Require(d.Is(err, nil, "no error running omegasort on %s"), tf)
 
 	sorted := strings.Trim(readFile(d, tf), "\n")
 	d.Is(sorted, expect, "got the expected sorted output")
