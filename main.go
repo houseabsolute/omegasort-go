@@ -10,7 +10,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"syscall"
 
 	"github.com/eidolon/wordwrap"
 	"github.com/houseabsolute/omegasort/internal/sorters"
@@ -80,16 +79,11 @@ func main() {
 }
 
 func new() (*omegasort, error) {
-	sd, err := sortDocs()
-	if err != nil {
-		return nil, err
-	}
-
 	app := kingpin.New("omegasort", "The last text file sorting tool you'll ever need.").
 		Author("Dave Rolsky <autarch@urth.org>").
 		Version(version).
 		UsageWriter(os.Stdout).
-		UsageTemplate(kingpin.DefaultUsageTemplate + sd)
+		UsageTemplate(kingpin.DefaultUsageTemplate + sortDocs())
 	app.HelpFlag.Short('h')
 
 	validSorts := []string{}
@@ -154,7 +148,7 @@ func new() (*omegasort, error) {
 		opts: appOpts,
 	}
 
-	_, err = app.Parse(os.Args[1:])
+	_, err := app.Parse(os.Args[1:])
 	if err != nil {
 		return o, err
 	}
@@ -191,14 +185,10 @@ func new() (*omegasort, error) {
 	return o, err
 }
 
-func sortDocs() (string, error) {
+func sortDocs() string {
 	docs := "Sorting Options:\n\n"
 
-	width, err := getWidth()
-	if err != nil {
-		return "", err
-	}
-
+	width := getWidth()
 	width -= 4 // length of indent
 
 	wrapper := wordwrap.Wrapper(width, false)
@@ -209,7 +199,7 @@ func sortDocs() (string, error) {
 		docs += "\n\n"
 	}
 
-	return docs, nil
+	return docs
 }
 
 func (o *omegasort) validateArgs() error {
@@ -310,10 +300,7 @@ This sorting method accepts the --reverse flag.
 `
 
 func printExtendedDocs() {
-	width, err := getWidth()
-	if err != nil {
-		panic(err)
-	}
+	width := getWidth()
 
 	wrapper := wordwrap.Wrapper(width, false)
 
@@ -330,17 +317,17 @@ func printExtendedDocs() {
 
 const maxWidth = 90
 
-func getWidth() (int, error) {
+func getWidth() int {
 	width, _, err := term.GetSize(int(os.Stderr.Fd()))
 	if width > maxWidth {
 		width = maxWidth
 	}
 
-	if err == syscall.ENOTTY {
-		return 80, nil
+	if err != nil {
+		return 80
 	}
 
-	return width, err
+	return width
 }
 
 const firstChunk = 2048
