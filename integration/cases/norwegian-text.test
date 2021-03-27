@@ -1,0 +1,11 @@
+{ "locale": "no" }
+----
+zoo
+bar
+öoo
+hello
+----
+bar
+hello
+öoo
+zoo

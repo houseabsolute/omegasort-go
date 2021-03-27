@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20201120081800-1786d5ef83d4 // indirect
 	github.com/araddon/dateparse v0.0.0-20201001162425-8aadafed4dc4
 	github.com/eidolon/wordwrap v0.0.0-20161011182207-e0f54129b8bb
-	github.com/houseabsolute/detest v0.0.1
+	github.com/houseabsolute/detest v0.0.6
 	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
 	golang.org/x/text v0.3.5
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6

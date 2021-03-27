@@ -33,6 +33,7 @@ type omegasort struct {
 type opts struct {
 	sort            string
 	locale          string
+	unique          bool
 	caseInsensitive bool
 	reverse         bool
 	windows         bool
@@ -54,6 +55,15 @@ func main() {
 	if err = o.run(); err != nil {
 		if err == errNotSorted {
 			_, err = os.Stderr.WriteString(fmt.Sprintf("The %s file is not sorted\n", o.opts.file))
+			if err != nil {
+				panic(err)
+			}
+			os.Exit(1)
+		}
+
+		var nuErr notUniqueError
+		if errors.As(err, &nuErr) {
+			_, err = os.Stderr.WriteString(fmt.Sprintf("The %s file is not unique: %s\n", o.opts.file, nuErr))
 			if err != nil {
 				panic(err)
 			}
@@ -97,6 +107,10 @@ func new() (*omegasort, error) {
 		"locale",
 		"The locale to use for sorting. If this is not specified the sorting is in codepoint order.",
 	).Short('l').Default("").String()
+	unique := app.Flag(
+		"unique",
+		"Make the file contents unique, or check that they're unique when used with --check.",
+	).Short('u').Default("false").Bool()
 	caseInsensitive := app.Flag(
 		"case-insensitive",
 		"Sort case-insensitively. Note that many locales always do this so if you specify"+
@@ -120,7 +134,7 @@ func new() (*omegasort, error) {
 	).Default("false").Bool()
 	check := app.Flag(
 		"check",
-		"Check that the file is sorted instead of sorting it. If it is not sorted the exit status will be 2.",
+		"Check that the file is sorted instead of sorting it. If it is not sorted (or not unique if --unique is given) the exit status will be 1.",
 	).Default("false").Bool()
 	debug := app.Flag(
 		"debug",
@@ -160,6 +174,7 @@ func new() (*omegasort, error) {
 	}
 
 	appOpts.locale = *locale
+	appOpts.unique = *unique
 	appOpts.caseInsensitive = *caseInsensitive
 	appOpts.reverse = *reverse
 	appOpts.windows = *windows
@@ -362,12 +377,20 @@ func (o *omegasort) run() error {
 			return errNotSorted
 		}
 
+		if o.opts.unique {
+			return o.checkUnique(lines)
+		}
+
 		return nil
 	}
 
 	sort.SliceStable(lines, sorter)
 	if *errRef != nil {
 		return *errRef
+	}
+
+	if o.opts.unique {
+		lines = o.uniquify(lines)
 	}
 
 	out, err := o.outputFile()
@@ -473,6 +496,45 @@ func (o *omegasort) splitFunc() bufio.SplitFunc {
 
 		return 0, nil, nil
 	}
+}
+
+type notUniqueError struct {
+	line    int
+	content string
+}
+
+func (nue notUniqueError) Error() string {
+	return fmt.Sprintf("line %d is a repeat - %s", nue.line, nue.content)
+}
+
+func (o *omegasort) checkUnique(lines []string) error {
+	seen := make(map[string]bool, len(lines))
+	for i, l := range lines {
+		if seen[l] {
+			return notUniqueError{
+				line:    i + 1,
+				content: l,
+			}
+		}
+		seen[l] = true
+	}
+
+	return nil
+}
+
+func (o *omegasort) uniquify(lines []string) []string {
+	seen := make(map[string]bool, len(lines))
+	uniq := make([]string, 0, len(lines))
+
+	for _, l := range lines {
+		if seen[l] {
+			continue
+		}
+		uniq = append(uniq, l)
+		seen[l] = true
+	}
+
+	return uniq
 }
 
 func (o *omegasort) outputFile() (*os.File, error) {

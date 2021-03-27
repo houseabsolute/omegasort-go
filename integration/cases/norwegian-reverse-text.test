@@ -1,0 +1,14 @@
+{
+    "locale": "no",
+    "reverse": true
+}
+----
+zoo
+bar
+öoo
+hello
+----
+zoo
+öoo
+hello
+bar

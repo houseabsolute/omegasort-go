@@ -1,3 +1,9 @@
+## 0.0.5
+
+* Added a --unique flag. This can be used with --check to check that a file is
+  both sorted and unique.
+
+
 ## 0.0.4 - 2020-12-29
 
 * Fix handling of errors during initialization. These sorts of error could
