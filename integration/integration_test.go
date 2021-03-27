@@ -186,7 +186,7 @@ func runOneTest(t *testing.T, td, path string) {
 		input = test[0]
 		expect = test[1]
 	}
-	expect = strings.Trim(expect, "\n")
+	expect = strings.TrimSpace(expect)
 
 	tf := filepath.Join(td, filepath.Base(path))
 	err = ioutil.WriteFile(tf, []byte(input), 0755)
@@ -196,7 +196,7 @@ func runOneTest(t *testing.T, td, path string) {
 	d.Is("", out, "no output when running omegasort on %s", tf)
 	d.Require(d.Is(err, nil, "no error running omegasort on %s"), tf)
 
-	sorted := strings.Trim(readFile(d, tf), "\n")
+	sorted := strings.TrimSpace(readFile(d, tf))
 	d.Is(sorted, expect, "got the expected sorted output")
 }
 

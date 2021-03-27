@@ -1,7 +1,7 @@
 ## 0.0.5
 
-* Added a --unique flag. This can be used with --check to check that a file is
-  both sorted and unique.
+* Added a --unique flag. This can also be used with --check to check that a
+  file is both sorted and unique.
 * Always close temp files before moving them. On Windows attempting to move an
   open file causes an error.
 
