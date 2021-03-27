@@ -193,27 +193,21 @@ func new() (*omegasort, error) {
 }
 
 func sortDocs() (string, error) {
-	docs := "Sorting Options:\n"
+	docs := "Sorting Options:\n\n"
 
 	width, err := getWidth()
 	if err != nil {
 		return "", err
 	}
 
-	longest := 0
-	for _, as := range sorters.AvailableSorts {
-		if len(as.Name) > longest {
-			longest = len(as.Name)
-		}
-	}
-	width -= longest
-	width -= 4 // length of "  * "
+	width -= 4 // length of indent
 
 	wrapper := wordwrap.Wrapper(width, false)
 
 	for _, as := range sorters.AvailableSorts {
-		indented := wrapper(as.Description)
-		docs += wordwrap.Indent(indented, fmt.Sprintf("  * %s - ", as.Name), false) + "\n"
+		docs += fmt.Sprintf("## %s\n", as.Name)
+		docs += wordwrap.Indent(wrapper(as.Description), "    ", true)
+		docs += "\n\n"
 	}
 
 	return docs, nil

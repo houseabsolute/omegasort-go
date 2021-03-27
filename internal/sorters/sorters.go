@@ -50,45 +50,45 @@ type Approach struct {
 var AvailableSorts = []Approach{
 	{
 		"text",
-		"sort the file as text according to the specified locale",
+		"Sort the file as text according to the specified locale.",
 		true,
 		false,
 		textSort,
 	},
 	{
 		"numbered-text",
-		"sort the file assuming that each line starts with a numeric prefix," +
-			" then fall back to sorting by text according to the specified locale",
+		"Sort the file assuming that each line starts with a numeric prefix," +
+			" then fall back to sorting by text according to the specified locale.",
 		true,
 		false,
 		numberedTextSort,
 	},
 	{
 		"datetime-text",
-		"sort the file assuming that each line starts with a date or datetime prefix," +
-			" then fall back to sorting by text according to the specified locale",
+		"Sort the file assuming that each line starts with a date or datetime prefix," +
+			" then fall back to sorting by text according to the specified locale.",
 		true,
 		false,
 		datetimeTextSort,
 	},
 	{
 		"path",
-		"sort the file assuming that each line is a path," +
-			" sorted so that deeper paths come after shorter",
+		"Sort the file assuming that each line is a path," +
+			" sorted so that deeper paths come after shorter.",
 		true,
 		true,
 		pathSort,
 	},
 	{
 		"ip",
-		"sort the file assuming that each line is an IP address",
+		"Sort the file assuming that each line is an IP address.",
 		false,
 		false,
 		ipSort,
 	},
 	{
 		"network",
-		"sort the file assuming that each line is a network in CIDR form",
+		"Sort the file assuming that each line is a network in CIDR form.",
 		false,
 		false,
 		networkSort,
