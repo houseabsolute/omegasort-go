@@ -8,11 +8,11 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - golint
     - gosimple
     - govet
     - ineffassign
     - misspell
+    - revive
     - staticcheck
     - structcheck
     - typecheck
