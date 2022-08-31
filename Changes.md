@@ -1,6 +1,6 @@
 ## 0.0.5 - 2021-03-27
 
-- Added a --unique flag. This can also be used with --check to check that a
+- Added a `--unique` flag. This can also be used with `--check` to check that a
   file is both sorted and unique.
 - Always close temp files before moving them. On Windows attempting to move an
   open file causes an error.
@@ -27,7 +27,7 @@
 
 ## 0.0.2 - 2019-09-27
 
-- The --check flag was not implemented and now it is.
+- The `--check` flag was not implemented and now it is.
 
 ## 0.0.1 - 2019-08-27
 
