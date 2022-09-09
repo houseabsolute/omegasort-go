@@ -242,7 +242,7 @@ func (o *omegasort) validateArgs() error {
 	return nil
 }
 
-//nolint: lll
+// nolint: lll
 var extendedSortDocs = `There are a number of different sorting methods available.
 
 ## Text
