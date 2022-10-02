@@ -21,7 +21,14 @@ lint_failure_exit_codes = [1]
 [commands.goimports]
 type = "tidy"
 include = "**/*.go"
-cmd = ["goimports", "-w"]
+cmd = [
+    "golangci-lint",
+    "run",
+    "--fix",
+    "--disable-all",
+    "--enable", "goimports",
+    "--allow-parallel-runners",
+]
 ok_exit_codes = [0]
 
 [commands.check-go-mod]
@@ -30,6 +37,5 @@ include = "**/*.go"
 run_mode = "root"
 chdir = true
 cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
-expect_stderr = true
 ok_exit_codes = [0]
 lint_failure_exit_codes = [1]
