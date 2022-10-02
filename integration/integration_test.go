@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -57,9 +58,10 @@ func TestCheckUnique(t *testing.T) {
 	td := t.TempDir()
 
 	type test struct {
-		name       string
-		content    string
-		expectFail bool
+		name        string
+		content     string
+		expectFail  bool
+		matchOutput *regexp.Regexp
 	}
 	tests := []test{
 		{
@@ -84,7 +86,8 @@ b
 e
 f
 `,
-			expectFail: true,
+			expectFail:  true,
+			matchOutput: regexp.MustCompile("file is not sorted"),
 		},
 		{
 			name: "not unique and sorted",
@@ -98,7 +101,8 @@ e
 f
 f
 `,
-			expectFail: true,
+			expectFail:  true,
+			matchOutput: regexp.MustCompile("file is not unique: line 5 is a repeat - c"),
 		},
 		{
 			name: "not unique and sorted",
@@ -116,7 +120,8 @@ e
 f
 f
 `,
-			expectFail: true,
+			expectFail:  true,
+			matchOutput: regexp.MustCompile("file is not sorted"),
 		},
 	}
 
@@ -131,6 +136,7 @@ f
 			out, err := runOmegasort(d, config, tf)
 			if test.expectFail {
 				d.IsNot(err, nil, "got an error when running omegasort")
+				d.Is(test.matchOutput.MatchString(out), true, "got expected output")
 				var exitErr *exec.ExitError
 				if d.Is(errors.As(err, &exitErr), true, "error is an *exec.ExitError") {
 					d.Is(exitErr.ExitCode(), 1, "exit code is 1")
