@@ -16,7 +16,7 @@ function install_tools () {
     # If we run this in the checkout dir it can mess with out go.mod and
     # go.sum.
     pushd /tmp
-    run "go get golang.org/x/tools/cmd/goimports"
+    run "go install golang.org/x/tools/cmd/goimports@latest"
     popd
 }
 
