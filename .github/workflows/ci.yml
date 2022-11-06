@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 1.16.x
+          - 1.18.x
         platform:
           - ubuntu-latest
           - macos-latest
@@ -16,24 +16,23 @@ jobs:
     steps:
       - name: Install Go
         if: success()
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: '${{ matrix.go-version }}'
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # from https://github.com/mvdan/github-actions-golang
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
-          # In order:
-          # * Module download cache
-          # * Build cache (Linux)
-          # * Build cache (Mac)
-          # * Build cache (Windows)
           path: |
-            ~/go/pkg/mod
+            # Linux
             ~/.cache/go-build
+            ~/go/pkg/mod
+            # macOS
             ~/Library/Caches/go-build
-            %LocalAppData%\go-build
+            # Windows
+            ~\AppData\Local\go-build
+            ~\go\pkg\mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
