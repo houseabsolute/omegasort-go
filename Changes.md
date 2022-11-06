@@ -4,7 +4,6 @@
   file. This means that the file's last modification time will not
   change. Fixes #3.
 
-
 ## 0.0.5 - 2021-03-27
 
 - Added a `--unique` flag. This can also be used with `--check` to check that a
