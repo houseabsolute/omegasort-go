@@ -2,7 +2,7 @@
 
 - When a file is already sorted, `omegasort` will no longer write to the
   file. This means that the file's last modification time will not
-  change. Fixes #3.
+  change in this case. Fixes #3.
 
 ## 0.0.5 - 2021-03-27
 
