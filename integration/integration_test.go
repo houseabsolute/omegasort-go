@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/houseabsolute/detest/pkg/detest"
 )
@@ -147,6 +148,39 @@ f
 			}
 		})
 	}
+}
+
+func TestFileIsNotModifiedWhenAlreadySorted(t *testing.T) {
+	d := detest.New(t)
+
+	td := t.TempDir()
+
+	tf := filepath.Join(td, "already-sorted")
+	content := `
+a
+b
+c
+d
+e
+f
+`
+	err := ioutil.WriteFile(tf, []byte(content), 0755)
+	d.Require(d.Is(err, nil, "no error writing to %s", tf))
+
+	stat1, err := os.Stat(tf)
+	d.Require(d.Is(err, nil, "no error from stat %s", td))
+
+	// If we don't wait sometimes we don't see any changes. I'm not sure what
+	// the resolution is for the mod time in Golang.
+	<-time.After(time.Second)
+
+	out, err := runOmegasort(d, config{Sort: "text"}, tf)
+	d.Require(d.Is(err, nil, "no error when running omegasort"))
+	d.Is(out, "", "got expected output")
+
+	stat2, err := os.Stat(tf)
+	d.Require(d.Is(err, nil, "no error from stat %s", td))
+	d.Is(stat1.ModTime(), stat2.ModTime(), "mod time did not change")
 }
 
 type config struct {

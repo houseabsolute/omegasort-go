@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"io"
@@ -18,7 +19,7 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-var version = "0.0.5"
+var version = "0.0.6"
 
 type omegasort struct {
 	opts       *opts
@@ -364,6 +365,11 @@ func (o *omegasort) run() error {
 		return nil
 	}
 
+	origHash, err := o.hashLines(lines)
+	if err != nil {
+		return err
+	}
+
 	sort.SliceStable(lines, sorter)
 	if *errRef != nil {
 		return *errRef
@@ -373,33 +379,42 @@ func (o *omegasort) run() error {
 		lines = o.uniquify(lines)
 	}
 
-	out, err := o.outputFile()
+	newHash, err := o.hashLines(lines)
 	if err != nil {
 		return err
 	}
 
-	for _, l := range lines {
-		_, err = out.WriteString(l)
+	if origHash != newHash || o.opts.toStdout {
+		out, err := o.outputFile()
 		if err != nil {
 			return err
 		}
-		_, err = out.Write(o.lineEnding)
-		if err != nil {
-			return err
+
+		for _, l := range lines {
+			_, err = out.WriteString(l)
+			if err != nil {
+				return err
+			}
+			_, err = out.Write(o.lineEnding)
+			if err != nil {
+				return err
+			}
 		}
-	}
 
-	// We need to close this before we remove it on Windows. Might as well do
-	// it everywhere.
-	err = out.Close()
-	if err != nil {
-		return err
-	}
+		if origHash != newHash {
+			// We need to close this before we remove it on Windows. Might as well do
+			// it everywhere.
+			err = out.Close()
+			if err != nil {
+				return err
+			}
 
-	if !o.opts.toStdout {
-		err := o.updateFiles(out.Name())
-		if err != nil {
-			return err
+			if !o.opts.toStdout {
+				err := o.updateFiles(out.Name())
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
 
@@ -522,6 +537,17 @@ func (o *omegasort) uniquify(lines []string) []string {
 	}
 
 	return uniq
+}
+
+func (o *omegasort) hashLines(lines []string) (string, error) {
+	h := md5.New()
+	for _, l := range lines {
+		_, err := h.Write([]byte(l))
+		if err != nil {
+			return "", err
+		}
+	}
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func (o *omegasort) outputFile() (*os.File, error) {
