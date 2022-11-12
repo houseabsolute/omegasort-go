@@ -1,3 +1,7 @@
+## 0.0.7 - 2022-11-12
+
+- Added Darwin arm64 and Windows arm64 builds.
+
 ## 0.0.6 - 2022-11-06
 
 - When a file is already sorted, `omegasort` will no longer write to the

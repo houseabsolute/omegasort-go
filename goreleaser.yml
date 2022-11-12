@@ -5,11 +5,18 @@ builds:
   - env:
       - CGO_ENABLED=0
       - GO386=softfloat
-    goos:
-      - freebsd
-      - linux
-      - darwin
-      - windows
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - freebsd_386
+      - freebsd_amd64
+      - freebsd_arm64
+      - linux_386
+      - linux_amd64
+      - linux_arm64
+      - windows_386
+      - windows_amd64
+      - windows_arm64
 archives:
   - replacements:
       freebsd: FreeBSD
