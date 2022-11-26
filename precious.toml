@@ -6,13 +6,16 @@ exclude = [
     "internal/posixpath/**/*.go",
     "internal/winpath/**/*.go",
 ]
-run_mode = "dirs"
+invoke = "once"
+path_args = "none"
 cmd = [
     "golangci-lint",
     "run",
     "-c",
     "$PRECIOUS_ROOT/golangci-lint.yml",
-    "--allow-parallel-runners",
+    "--skip-dirs", "internal/ip",
+    "--skip-dirs", "internal/posixpath",
+    "--skip-dirs", "internal/winpath",
 ]
 env = { "FAIL_ON_WARNINGS" = "1" }
 ok_exit_codes = [0]
@@ -34,8 +37,8 @@ ok_exit_codes = [0]
 [commands.check-go-mod]
 type = "lint"
 include = "**/*.go"
-run_mode = "root"
-chdir = true
+invoke = "once"
+path_args = "none"
 cmd = ["$PRECIOUS_ROOT/dev/bin/check-go-mod.sh"]
 ok_exit_codes = [0]
 lint_failure_exit_codes = [1]
