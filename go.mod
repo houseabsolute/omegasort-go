@@ -8,7 +8,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20201001162425-8aadafed4dc4
 	github.com/eidolon/wordwrap v0.0.0-20161011182207-e0f54129b8bb
 	github.com/houseabsolute/detest v0.0.6
-	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
-	golang.org/x/text v0.3.5
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
+	golang.org/x/text v0.3.8
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
